@@ -4,9 +4,12 @@
 	import type { ContractPricing, QuoteDraft, WorkOrder } from '../types.ts';
 	import Pill from '../ui/Pill.svelte';
 	import { mutate } from '../work-orders/mutate.ts';
+	import ContractLineDialog from './ContractLineDialog.svelte';
 	import { removeLine, startDraft } from './fake.svelte.ts';
 
 	let { workOrder, pricing, draft }: { workOrder: WorkOrder; pricing: ContractPricing; draft: QuoteDraft | null } = $props();
+
+	let addingContractLine = $state(false);
 
 	const currency = $derived(draft?.currency ?? pricing.priceList.currency);
 	// Two lines can cover the same item, even with the same code: a standby hour split over two time bands.
@@ -78,11 +81,14 @@
 		{#if !draft}
 			<button class="primary" disabled={!workOrder.isChargeable} onclick={() => mutate(() => startDraft(workOrder), 'Quote draft started')}>Start draft</button>
 		{:else if draft.editable}
+			<button onclick={() => (addingContractLine = true)}>+ Add from contract list</button>
 			<button class="primary" disabled>Send to Salesforce</button>
 			<span class="grey">Sending comes with the backend.</span>
 		{/if}
 	</footer>
 </div>
+
+{#if draft}<ContractLineDialog bind:open={addingContractLine} {draft} />{/if}
 
 <style>
 	h2 {

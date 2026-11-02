@@ -133,3 +133,50 @@ export interface QuoteDraft {
 	lines: QuoteDraftLine[];
 	total: number;
 }
+
+export interface PriceListBand {
+	id: string;
+	code: string;
+	label: string;
+	timeWindow: string;
+}
+
+export interface PriceListRate {
+	id: string;
+	amount: number;
+	/** Empty when the list has no time bands, like Lindenhome's. */
+	band: PriceListBand | null;
+}
+
+export interface PriceListEntry {
+	id: string;
+	code: string;
+	section: string;
+	wording: string;
+	unit: string | null;
+	notes: string | null;
+	/** False when the list leaves something to confirm, such as a missing unit. */
+	pickable: boolean;
+	rates: PriceListRate[];
+}
+
+/** A rule printed in the list, not a price: a multiplier, a volume discount, an adjustment. */
+export interface PriceListRule {
+	id: string;
+	code: string | null;
+	kind: 'INVOICE_MULTIPLIER' | 'QUANTITY_DISCOUNT' | 'STAR_RATES_ADJUSTMENT';
+	value: number;
+	description: string;
+	appliesTo: string;
+}
+
+export interface PriceListSearch {
+	entries: PriceListEntry[];
+	rules: PriceListRule[];
+}
+
+export interface NewContractLine {
+	rateId: string;
+	quantity: number;
+	coverage: { itemId: string; quantity: number }[];
+}
