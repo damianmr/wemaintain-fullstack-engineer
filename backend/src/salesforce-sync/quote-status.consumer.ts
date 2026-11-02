@@ -16,7 +16,8 @@ interface SFWorkOrderLink {
 }
 
 export async function onQuoteStatusChanged(event: SFQuoteStatusChangeEvent, deps: Deps): Promise<void> {
-  if (event.To__c === QuoteStatusesSF.Draft) return
+  // A new quote starts in Draft: nothing to record. A quote moved back to Draft is a change: its draft can be edited again.
+  if (event.To__c === QuoteStatusesSF.Draft && !event.From__c) return
 
   const status = QuoteStatusesSFtoDomain[event.To__c]
   if (!status) throw new Error(`Unknown status ${event.To__c} on QuoteStatusChangeEvent__e for ${event.QuoteId__c}`)
