@@ -17,6 +17,7 @@ src/
   contracts/        customers, buildings, devices, contracts (read by quoting; written by the Salesforce sync)
   parts/            the parts catalogue, synced from the ERP
   price-lists/      the contract price lists (Schedules of Rates), one version per import
+  quote-drafts/     quotes prepared from a contract price list before they go to Salesforce
   salesforce-sync/  what we do when Salesforce tells us something changed
   schema.graphql    the whole API
   shared/
