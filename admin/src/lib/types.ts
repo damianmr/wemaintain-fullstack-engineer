@@ -71,6 +71,9 @@ export interface WorkOrder {
 	bundledWorkOrders: { id: string; workOrderNumber: string; device: { deviceNo: string } | null }[];
 	device: Device | null;
 	items: Item[];
+	/** Null: the contract has no price list, and the Salesforce quote buttons apply. */
+	contractPricing: ContractPricing | null;
+	quoteDraft: QuoteDraft | null;
 }
 
 /** The price list that applies to a work order's contract, if C1 has linked one. */
@@ -120,6 +123,7 @@ export interface QuoteDraftWorkOrder {
 export interface QuoteDraft {
 	id: string;
 	contractNo: string;
+	priceListId: string;
 	priceListName: string;
 	currency: string;
 	status: 'OPEN' | 'SENT';

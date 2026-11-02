@@ -7,7 +7,7 @@
 	import AddWorkOrderDialog from './AddWorkOrderDialog.svelte';
 	import ContractLineDialog from './ContractLineDialog.svelte';
 	import ManualLineDialog from './ManualLineDialog.svelte';
-	import { removeLine, removeWorkOrder, startDraft } from './fake.svelte.ts';
+	import { removeLine, removeWorkOrder, startDraft } from './api.ts';
 
 	let { workOrder, pricing, draft }: { workOrder: WorkOrder; pricing: ContractPricing; draft: QuoteDraft | null } = $props();
 
@@ -102,7 +102,7 @@
 			<button onclick={() => (addingContractLine = true)}>+ Add from contract list</button>
 			<button onclick={() => addManualLine()}>+ Add manual line</button>
 			<button class="primary" disabled>Send to Salesforce</button>
-			<span class="grey">Sending comes with the backend.</span>
+			<span class="grey">Sending to Salesforce comes next.</span>
 		{/if}
 	</footer>
 </div>

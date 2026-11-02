@@ -4,7 +4,7 @@
 	import Dialog from '../ui/Dialog.svelte';
 	import Pill from '../ui/Pill.svelte';
 	import { mutate } from '../work-orders/mutate.ts';
-	import { addWorkOrders, findWorkOrdersToAdd } from './fake.svelte.ts';
+	import { addWorkOrders, findWorkOrdersToAdd } from './api.ts';
 
 	let { open = $bindable(false), draft }: { open: boolean; draft: QuoteDraft } = $props();
 	let candidates = $state<DraftCandidate[] | null>(null);

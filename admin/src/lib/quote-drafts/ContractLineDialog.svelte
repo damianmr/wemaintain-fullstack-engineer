@@ -5,7 +5,7 @@
 	import Dialog from '../ui/Dialog.svelte';
 	import Pill from '../ui/Pill.svelte';
 	import { mutate } from '../work-orders/mutate.ts';
-	import { addContractLine, searchPriceList } from './fake.svelte.ts';
+	import { addContractLine, searchPriceList } from './api.ts';
 
 	let {
 		open = $bindable(false),
@@ -23,7 +23,7 @@
 	let coverage = $state<{ itemId: string; quantity: number }[]>([]);
 
 	$effect(() => {
-		if (open) searchPriceList(draft.id, search).then((found) => ({ entries, rules } = found));
+		if (open) searchPriceList(draft.priceListId, search).then((found) => ({ entries, rules } = found));
 	});
 
 	const rate = $derived(picked?.rates.find((r) => r.id === rateId) ?? null);

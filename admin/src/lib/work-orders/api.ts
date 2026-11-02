@@ -1,4 +1,5 @@
 import { gql } from '../graphql.ts';
+import { QUOTE_DRAFT } from '../quote-drafts/api.ts';
 import type { Part, WorkOrder, WorkOrderState } from '../types.ts';
 
 const DEVICE = `device {
@@ -30,6 +31,7 @@ export const getWorkOrder = (id: string, fetcher?: typeof fetch) =>
 				bundledWorkOrders { id workOrderNumber device { deviceNo } }
 				${DEVICE}
 				items { id type partId part { id sku name brand averageCost } quantity description comment price sellPrice }
+				${QUOTE_DRAFT}
 			}
 		}`,
 		{ id },

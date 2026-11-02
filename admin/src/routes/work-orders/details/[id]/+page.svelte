@@ -1,6 +1,5 @@
 <script lang="ts">
 	import QuoteDraftCard from '#lib/quote-drafts/QuoteDraftCard.svelte';
-	import { contractPricingOf, quoteDraftOf } from '#lib/quote-drafts/fake.svelte.ts';
 	import HeaderCard from '#lib/work-orders/HeaderCard.svelte';
 	import ItemsCard from '#lib/work-orders/ItemsCard.svelte';
 	import QuoteCard from '#lib/work-orders/QuoteCard.svelte';
@@ -8,8 +7,8 @@
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
-	const pricing = $derived(contractPricingOf(data.workOrder));
-	const draft = $derived(quoteDraftOf(data.workOrder));
+	const pricing = $derived(data.workOrder.contractPricing);
+	const draft = $derived(data.workOrder.quoteDraft);
 </script>
 
 <a href="/work-orders/ongoing">‹ Work orders</a>

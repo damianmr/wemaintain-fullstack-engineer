@@ -4,7 +4,7 @@
 	import type { ManualReason, PriceListRule, QuoteDraft } from '../types.ts';
 	import Dialog from '../ui/Dialog.svelte';
 	import { mutate } from '../work-orders/mutate.ts';
-	import { addManualLine } from './fake.svelte.ts';
+	import { addManualLine } from './api.ts';
 
 	let { open = $bindable(false), draft, rule = null }: { open: boolean; draft: QuoteDraft; rule?: PriceListRule | null } = $props();
 
