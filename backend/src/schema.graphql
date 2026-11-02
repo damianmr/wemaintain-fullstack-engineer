@@ -32,6 +32,8 @@ type Mutation {
   "A line priced by the CSM, with the reason it does not come from the list."
   addManualLine(input: ManualLineInput!): QuoteDraft!
   removeDraftLine(draftId: ID!, lineId: ID!): QuoteDraft!
+  "Creates the Salesforce quote with exactly the draft's lines, or replaces the lines of its quote while it is Draft."
+  sendQuoteDraft(draftId: ID!): QuoteDraft!
 }
 
 enum WorkOrderType { CALLOUT REPAIR SHUTDOWN }

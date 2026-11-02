@@ -7,11 +7,12 @@
 	import AddWorkOrderDialog from './AddWorkOrderDialog.svelte';
 	import ContractLineDialog from './ContractLineDialog.svelte';
 	import ManualLineDialog from './ManualLineDialog.svelte';
-	import { removeLine, removeWorkOrder, startDraft } from './api.ts';
+	import { removeLine, removeWorkOrder, sendDraft, startDraft } from './api.ts';
 
 	let { workOrder, pricing, draft }: { workOrder: WorkOrder; pricing: ContractPricing; draft: QuoteDraft | null } = $props();
 
 	let addingWorkOrders = $state(false);
+	let sending = $state(false);
 	let addingContractLine = $state(false);
 	let addingManualLine = $state(false);
 	let manualRule = $state<PriceListRule | null>(null);
@@ -22,6 +23,17 @@
 	}
 
 	const currency = $derived(draft?.currency ?? pricing.priceList.currency);
+
+	async function send(draftId: string) {
+		sending = true;
+		let link: string | null = null;
+		await mutate(async () => {
+			link = await sendDraft(draftId);
+		}, 'Quote sent to Salesforce');
+		sending = false;
+		if (link) window.open(link, '_blank', 'noopener,noreferrer');
+	}
+
 	// Two lines can cover the same item, even with the same code: a standby hour split over two time bands.
 	const coveredBy = (itemId: string) => draft?.lines.filter((line) => line.coverage.some((c) => c.itemId === itemId)) ?? [];
 </script>
@@ -39,6 +51,16 @@
 			</p>
 			{#if !workOrder.isChargeable}<p class="grey">This work order is not chargeable: no quote needed.</p>{/if}
 		{:else}
+			{#if draft.sfQuoteLink}
+				<p>
+					Salesforce quote <a href={draft.sfQuoteLink} target="_blank" rel="noopener noreferrer">↗ {draft.quoteNumber ?? draft.sfQuoteId}</a>
+				</p>
+				{#if draft.editable}
+					<div class="alert">The quote is still Draft. Sending again replaces its lines with these; lines edited directly in Salesforce are lost.</div>
+				{:else}
+					<div class="alert">The quote has left Draft in Salesforce: this draft can no longer change.</div>
+				{/if}
+			{/if}
 			<h2>Work orders</h2>
 			{#each draft.workOrders as wo (wo.id)}
 				<div class="work-order">
@@ -90,7 +112,7 @@
 			{/each}
 			<div class="total">Total before tax: <strong>{money(draft.total, currency)}</strong></div>
 
-			{#if draft.sendBlockers.length}
+			{#if draft.editable && draft.sendBlockers.length}
 				<div class="alert warning">{#each draft.sendBlockers as blocker (blocker)}<div>{blocker}</div>{/each}</div>
 			{/if}
 		{/if}
@@ -101,8 +123,9 @@
 		{:else if draft.editable}
 			<button onclick={() => (addingContractLine = true)}>+ Add from contract list</button>
 			<button onclick={() => addManualLine()}>+ Add manual line</button>
-			<button class="primary" disabled>Send to Salesforce</button>
-			<span class="grey">Sending to Salesforce comes next.</span>
+			<button class="primary" disabled={draft.sendBlockers.length > 0 || sending} onclick={() => send(draft.id)}>
+				{sending ? 'Sending…' : draft.sfQuoteId ? 'Send again to Salesforce' : 'Send to Salesforce'}
+			</button>
 		{/if}
 	</footer>
 </div>

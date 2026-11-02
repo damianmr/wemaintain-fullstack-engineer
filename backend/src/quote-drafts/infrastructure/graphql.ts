@@ -4,6 +4,7 @@ import { addManualLine } from '../commands/add-manual-line'
 import { addWorkOrdersToDraft } from '../commands/add-work-orders-to-draft'
 import { removeDraftLine } from '../commands/remove-draft-line'
 import { removeWorkOrderFromDraft } from '../commands/remove-work-order-from-draft'
+import { sendQuoteDraft } from '../commands/send-quote-draft'
 import { startQuoteDraft } from '../commands/start-quote-draft'
 import { QuoteDraft } from '../domain/quote-draft'
 import { findDraftCandidates } from '../queries/find-draft-candidates'
@@ -26,6 +27,7 @@ export function quoteDraftResolvers(deps: Deps) {
       addManualLine: async (_: unknown, { input }: Args) =>
         reread(await addManualLine({ ...input, note: input.note ?? undefined, ruleId: input.ruleId ?? undefined }, deps)),
       removeDraftLine: async (_: unknown, args: Args) => reread(await removeDraftLine({ draftId: args.draftId, lineId: args.lineId }, deps)),
+      sendQuoteDraft: async (_: unknown, args: Args) => reread(await sendQuoteDraft({ draftId: args.draftId }, deps)),
     },
     WorkOrderDetails: {
       quoteDraft: (workOrder: { id: string }) => getQuoteDraftForWorkOrder({ workOrderId: workOrder.id }, deps),

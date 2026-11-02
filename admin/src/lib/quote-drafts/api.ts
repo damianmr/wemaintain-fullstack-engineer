@@ -50,3 +50,9 @@ export const addManualLine = (draftId: string, line: NewManualLine) =>
 
 export const removeLine = (draftId: string, lineId: string) =>
 	gql(`mutation RemoveLine($draftId: ID!, $lineId: ID!) { removeDraftLine(draftId: $draftId, lineId: $lineId) { id } }`, { draftId, lineId });
+
+/** Creates the Salesforce quote with the draft's lines, or replaces its lines. Returns the quote's page. */
+export const sendDraft = (draftId: string) =>
+	gql<{ sendQuoteDraft: { sfQuoteLink: string | null } }>(`mutation SendDraft($draftId: ID!) { sendQuoteDraft(draftId: $draftId) { sfQuoteLink } }`, {
+		draftId
+	}).then((data) => data.sendQuoteDraft.sfQuoteLink);

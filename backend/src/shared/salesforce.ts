@@ -3,6 +3,8 @@ export interface QuoteProduct {
   quantity: number
   cost?: number | null
   price?: number
+  /** What the customer reads instead of the product's name. */
+  productName?: string
 }
 
 export interface SendQuotePayload {
