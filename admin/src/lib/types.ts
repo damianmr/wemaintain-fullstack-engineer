@@ -72,3 +72,64 @@ export interface WorkOrder {
 	device: Device | null;
 	items: Item[];
 }
+
+/** The price list that applies to a work order's contract, if C1 has linked one. */
+export interface ContractPricing {
+	contractId: string;
+	contractNo: string;
+	priceList: { id: string; name: string; currency: string };
+}
+
+export type DraftLineKind = 'CONTRACT' | 'MANUAL';
+
+export type ManualReason = 'PART_NOT_ON_LIST' | 'SUBCONTRACTED_WORK' | 'NEGOTIATED_PRICE' | 'IMPORTED' | 'OTHER';
+
+export interface CoveredItem {
+	itemId: string;
+	workOrderNumber: string;
+	quantity: number;
+}
+
+export interface QuoteDraftLine {
+	id: string;
+	kind: DraftLineKind;
+	/** The contract code: 0435AS, or 65 for a Meridian SOR item. */
+	code: string | null;
+	/** What the customer reads on the quote. */
+	customerText: string;
+	bandLabel: string | null;
+	unit: string | null;
+	quantity: number;
+	unitPrice: number;
+	total: number;
+	reason: ManualReason | null;
+	note: string | null;
+	ruleCode: string | null;
+	coverage: CoveredItem[];
+}
+
+export interface QuoteDraftWorkOrder {
+	id: string;
+	workOrderNumber: string;
+	state: WorkOrderState;
+	deviceNo: string;
+	buildingName: string;
+	items: Item[];
+}
+
+export interface QuoteDraft {
+	id: string;
+	contractNo: string;
+	priceListName: string;
+	currency: string;
+	status: 'OPEN' | 'SENT';
+	editable: boolean;
+	/** Why the draft cannot be sent yet. Empty when it can. */
+	sendBlockers: string[];
+	sfQuoteId: string | null;
+	sfQuoteLink: string | null;
+	quoteNumber: string | null;
+	workOrders: QuoteDraftWorkOrder[];
+	lines: QuoteDraftLine[];
+	total: number;
+}

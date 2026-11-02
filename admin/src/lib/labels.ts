@@ -43,3 +43,7 @@ export const TABS = {
 export const isEditable = (state: WorkOrderState) => !['DONE', 'CANCELLED', 'DENIED'].includes(state);
 
 export const PAGE_SIZE = 30;
+
+/** How a repair item reads in a list: its part, its free-text name, or its kind. */
+export const itemLabel = (item: Item) =>
+	(item.type === 'PART' ? item.part?.name : item.type === 'EXTERNAL_PART' ? item.description : item.type === 'MAN_HOUR' ? 'Labour (hours)' : 'Installation') ?? '';

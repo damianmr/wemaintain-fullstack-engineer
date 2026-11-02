@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { date, money } from '../format.ts';
 	import { quoteStatusPill, URGENCY } from '../labels.ts';
-	import type { WorkOrder } from '../types.ts';
+	import type { ContractPricing, WorkOrder } from '../types.ts';
 	import Pill from '../ui/Pill.svelte';
 	import AttachQuoteDialog from './AttachQuoteDialog.svelte';
 	import { pushQuoteToSalesforce } from './api.ts';
 	import { mutate } from './mutate.ts';
 
-	let { workOrder }: { workOrder: WorkOrder } = $props();
+	// With a contract price list, the quote is built in the quote draft card instead.
+	let { workOrder, pricing = null }: { workOrder: WorkOrder; pricing?: ContractPricing | null } = $props();
 	let generating = $state(false);
 	let attaching = $state(false);
 
@@ -46,6 +47,8 @@
 			<dd class="row">
 				{#if workOrder.sfQuoteId}
 					<a href={workOrder.sfQuoteLink} target="_blank" rel="noopener noreferrer">↗ {quote?.number ?? workOrder.quoteNumber}</a>
+				{:else if workOrder.isChargeable && pricing}
+					<span class="grey">Built from the contract price list, in the quote draft below</span>
 				{:else if workOrder.isChargeable}
 					<button class="primary" disabled={workOrder.state === 'PART_TO_ESTIMATE' || awaitingSupply > 0 || generating} onclick={generateQuote}>
 						{generating ? 'Generating…' : 'Generate quote on Salesforce'}
