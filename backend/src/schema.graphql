@@ -9,6 +9,8 @@ type Query {
   device(id: ID!): Device
   "Entries and rules of a contract price list whose code, wording or section contains the search."
   priceListSearch(priceListId: ID!, search: String): PriceListSearch!
+  "Work orders that can join this draft: same contract, any building, chargeable, no quote, no draft."
+  draftCandidates(draftId: ID!): [DraftCandidate!]!
 }
 
 type Mutation {
@@ -20,6 +22,16 @@ type Mutation {
   assignCataloguePart(workOrderId: ID!, itemId: ID!, partId: ID!): WorkOrder!
   "Create the Salesforce quote for these work orders, or add them to an existing draft quote."
   pushQuoteToSalesforce(workOrderIds: [ID!]!, sfQuoteId: String): [WorkOrder!]!
+  "Starts a quote draft from a work order whose contract has a price list."
+  startQuoteDraft(workOrderId: ID!): QuoteDraft!
+  addWorkOrdersToDraft(draftId: ID!, workOrderIds: [ID!]!): QuoteDraft!
+  "Only before the draft's first send."
+  removeWorkOrderFromDraft(draftId: ID!, workOrderId: ID!): QuoteDraft!
+  "A line priced by the server from the contract list. The price is never sent by the client."
+  addContractLine(input: ContractLineInput!): QuoteDraft!
+  "A line priced by the CSM, with the reason it does not come from the list."
+  addManualLine(input: ManualLineInput!): QuoteDraft!
+  removeDraftLine(draftId: ID!, lineId: ID!): QuoteDraft!
 }
 
 enum WorkOrderType { CALLOUT REPAIR SHUTDOWN }
@@ -88,6 +100,8 @@ type WorkOrderDetails {
   device: Device
   "The contract price list that applies today, through the device's contract. Null: the old quote flow applies."
   contractPricing: ContractPricing
+  "The quote draft this work order is in, if any."
+  quoteDraft: QuoteDraft
 }
 
 type WorkOrderItem {
@@ -263,4 +277,94 @@ type PriceListRule {
   appliesTo: String!
   minQuantity: Int
   maxQuantity: Int
+}
+
+enum DraftStatus { OPEN SENT }
+enum DraftLineKind { CONTRACT MANUAL }
+enum ManualReason { PART_NOT_ON_LIST SUBCONTRACTED_WORK NEGOTIATED_PRICE IMPORTED OTHER }
+
+"One quote being prepared for one contract, before and while it is a Draft in Salesforce."
+type QuoteDraft {
+  id: ID!
+  contractNo: String!
+  priceListId: ID!
+  priceListName: String!
+  currency: String!
+  status: DraftStatus!
+  "Open, or sent while the Salesforce quote is still Draft."
+  editable: Boolean!
+  "Why the draft cannot be sent yet. Empty when it can."
+  sendBlockers: [String!]!
+  sfQuoteId: String
+  sfQuoteLink: String
+  quoteNumber: String
+  workOrders: [QuoteDraftWorkOrder!]!
+  lines: [QuoteDraftLine!]!
+  total: Float!
+}
+
+type QuoteDraftWorkOrder {
+  id: ID!
+  workOrderNumber: String!
+  state: WorkOrderState!
+  deviceNo: String!
+  buildingName: String!
+  items: [WorkOrderItem!]!
+}
+
+type QuoteDraftLine {
+  id: ID!
+  kind: DraftLineKind!
+  "Contract lines: the code in the list, such as 0435AS, or 65 for a SOR item."
+  code: String
+  "What the customer reads on the quote."
+  customerText: String!
+  bandLabel: String
+  unit: String
+  quantity: Int!
+  unitPrice: Float!
+  total: Float!
+  reason: ManualReason
+  note: String
+  "Manual lines: the code of the contract rule followed, such as 0097AS."
+  ruleCode: String
+  coverage: [CoveredItem!]!
+}
+
+type CoveredItem {
+  itemId: ID!
+  workOrderNumber: String!
+  quantity: Int!
+}
+
+type DraftCandidate {
+  id: ID!
+  workOrderNumber: String!
+  "The title, or the description when there is no title."
+  title: String!
+  state: WorkOrderState!
+  deviceNo: String!
+  buildingName: String!
+}
+
+input ContractLineInput {
+  draftId: ID!
+  rateId: ID!
+  quantity: Int!
+  coverage: [CoverageInput!]!
+}
+
+input CoverageInput {
+  itemId: ID!
+  quantity: Int!
+}
+
+input ManualLineInput {
+  draftId: ID!
+  customerText: String!
+  quantity: Int!
+  unitPrice: Float!
+  reason: ManualReason!
+  note: String
+  ruleId: ID
 }
