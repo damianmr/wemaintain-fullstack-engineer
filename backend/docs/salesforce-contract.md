@@ -22,6 +22,7 @@ The backend sends these shapes, and only these:
 | From | Query | Used by |
 | --- | --- | --- |
 | `QuoteRepository` | `SELECT Id, Name, QuoteNumber, Description__c, Status, GrandTotal, CurrencyIsoCode, SentDate__c, CreatedDate, Account.Name, Email, Opportunity.Owner.Name, Opportunity.Owner.Email, (SELECT ContentDocumentId FROM ContentDocumentLinks ORDER BY SystemModstamp DESC) FROM Quote WHERE Id IN (…)` | quote reads |
+| `adoptQuote` | `SELECT Id, Quantity, UnitPrice, Discount, QuotePdf_ProductName__c, Quote_Line_Description__c, Product2.Name FROM QuoteLineItem WHERE QuoteId = '<quote id>'` | the lines of a Draft quote a quote draft takes over |
 | quote status consumer | `SELECT Id, RRID__c, Quote__r.QuoteNumber, Quote__r.Status FROM Repair_Request__c WHERE Quote__c = '<quote id>'` | which work orders a quote covers |
 | contract-device consumer | `SELECT Id, Wemaintain_ID__c FROM Contract WHERE Id = '<id>'` | our contract id |
 | contract-device consumer | `SELECT Id, WeMaintain_ID__c FROM Device__c WHERE Id = '<id>'` | our device id |

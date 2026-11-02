@@ -2,6 +2,7 @@ import type { Deps } from '../../shared/boilerplate/deps'
 import { addContractLine } from '../commands/add-contract-line'
 import { addManualLine } from '../commands/add-manual-line'
 import { addWorkOrdersToDraft } from '../commands/add-work-orders-to-draft'
+import { adoptQuote } from '../commands/adopt-quote'
 import { removeDraftLine } from '../commands/remove-draft-line'
 import { removeWorkOrderFromDraft } from '../commands/remove-work-order-from-draft'
 import { sendQuoteDraft } from '../commands/send-quote-draft'
@@ -20,6 +21,7 @@ export function quoteDraftResolvers(deps: Deps) {
     },
     Mutation: {
       startQuoteDraft: async (_: unknown, args: Args) => reread(await startQuoteDraft({ workOrderId: args.workOrderId }, deps)),
+      adoptQuote: async (_: unknown, args: Args) => reread(await adoptQuote({ workOrderId: args.workOrderId }, deps)),
       addWorkOrdersToDraft: async (_: unknown, args: Args) => reread(await addWorkOrdersToDraft({ draftId: args.draftId, workOrderIds: args.workOrderIds }, deps)),
       removeWorkOrderFromDraft: async (_: unknown, args: Args) =>
         reread(await removeWorkOrderFromDraft({ draftId: args.draftId, workOrderId: args.workOrderId }, deps)),

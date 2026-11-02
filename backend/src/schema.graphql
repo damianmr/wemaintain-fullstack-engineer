@@ -24,6 +24,8 @@ type Mutation {
   pushQuoteToSalesforce(workOrderIds: [ID!]!, sfQuoteId: String): [WorkOrder!]!
   "Starts a quote draft from a work order whose contract has a price list."
   startQuoteDraft(workOrderId: ID!): QuoteDraft!
+  "Takes over this work order's Draft quote made the old way: its work orders join, its lines become manual lines."
+  adoptQuote(workOrderId: ID!): QuoteDraft!
   addWorkOrdersToDraft(draftId: ID!, workOrderIds: [ID!]!): QuoteDraft!
   "Only before the draft's first send."
   removeWorkOrderFromDraft(draftId: ID!, workOrderId: ID!): QuoteDraft!

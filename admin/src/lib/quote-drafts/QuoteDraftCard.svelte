@@ -7,7 +7,7 @@
 	import AddWorkOrderDialog from './AddWorkOrderDialog.svelte';
 	import ContractLineDialog from './ContractLineDialog.svelte';
 	import ManualLineDialog from './ManualLineDialog.svelte';
-	import { removeLine, removeWorkOrder, sendDraft, startDraft } from './api.ts';
+	import { adoptQuote, removeLine, removeWorkOrder, sendDraft, startDraft } from './api.ts';
 
 	let { workOrder, pricing, draft }: { workOrder: WorkOrder; pricing: ContractPricing; draft: QuoteDraft | null } = $props();
 
@@ -23,6 +23,8 @@
 	}
 
 	const currency = $derived(draft?.currency ?? pricing.priceList.currency);
+	// A quote made the old way: still Draft, it can be adopted; past Draft, it stays as it is.
+	const adoptable = $derived(!!workOrder.sfQuoteId && workOrder.quoteStatus === 'DRAFT');
 
 	async function send(draftId: string) {
 		sending = true;
@@ -44,7 +46,14 @@
 		<span class="grey">{pricing.priceList.name} · Contract {pricing.contractNo} · {currency}</span>
 	</header>
 	<div class="body">
-		{#if !draft}
+		{#if !draft && adoptable}
+			<p>
+				This work order is on Salesforce quote {workOrder.quoteNumber ?? workOrder.sfQuoteId}, made before the contract list was here, and still
+				Draft. Adopt it to price it from the list: its work orders join a draft, and its lines come in as manual lines to review.
+			</p>
+		{:else if !draft && workOrder.sfQuoteId}
+			<p class="grey">This work order is on a Salesforce quote that has left Draft. It stays as it is.</p>
+		{:else if !draft}
 			<p>
 				This contract has a price list. Build the quote here: contract lines take the agreed price from the list. Nothing goes to Salesforce
 				until you send the draft.
@@ -56,7 +65,7 @@
 					Salesforce quote <a href={draft.sfQuoteLink} target="_blank" rel="noopener noreferrer">↗ {draft.quoteNumber ?? draft.sfQuoteId}</a>
 				</p>
 				{#if draft.editable}
-					<div class="alert">The quote is still Draft. Sending again replaces its lines with these; lines edited directly in Salesforce are lost.</div>
+					<div class="alert">The quote is still Draft. Updating it replaces its lines with these; lines edited directly in Salesforce are lost.</div>
 				{:else}
 					<div class="alert">The quote has left Draft in Salesforce: this draft can no longer change.</div>
 				{/if}
@@ -118,13 +127,15 @@
 		{/if}
 	</div>
 	<footer>
-		{#if !draft}
+		{#if !draft && adoptable}
+			<button class="primary" onclick={() => mutate(() => adoptQuote(workOrder), 'Quote adopted into a draft')}>Adopt this quote</button>
+		{:else if !draft && !workOrder.sfQuoteId}
 			<button class="primary" disabled={!workOrder.isChargeable} onclick={() => mutate(() => startDraft(workOrder), 'Quote draft started')}>Start draft</button>
-		{:else if draft.editable}
+		{:else if draft?.editable}
 			<button onclick={() => (addingContractLine = true)}>+ Add from contract list</button>
 			<button onclick={() => addManualLine()}>+ Add manual line</button>
-			<button class="primary" disabled={draft.sendBlockers.length > 0 || sending} onclick={() => send(draft.id)}>
-				{sending ? 'Sending…' : draft.sfQuoteId ? 'Send again to Salesforce' : 'Send to Salesforce'}
+			<button class="primary" disabled={draft.sendBlockers.length > 0 || sending} onclick={() => draft && send(draft.id)}>
+				{sending ? 'Sending…' : draft.sfQuoteId ? 'Update the Salesforce quote' : 'Send to Salesforce'}
 			</button>
 		{/if}
 	</footer>

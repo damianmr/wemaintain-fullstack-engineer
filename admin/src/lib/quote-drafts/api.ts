@@ -56,3 +56,7 @@ export const sendDraft = (draftId: string) =>
 	gql<{ sendQuoteDraft: { sfQuoteLink: string | null } }>(`mutation SendDraft($draftId: ID!) { sendQuoteDraft(draftId: $draftId) { sfQuoteLink } }`, {
 		draftId
 	}).then((data) => data.sendQuoteDraft.sfQuoteLink);
+
+/** Takes over the work order's Draft quote made the old way. */
+export const adoptQuote = (workOrder: WorkOrder) =>
+	gql(`mutation AdoptQuote($workOrderId: ID!) { adoptQuote(workOrderId: $workOrderId) { id } }`, { workOrderId: workOrder.id });

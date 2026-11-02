@@ -123,7 +123,7 @@ export class QuoteDraft {
       currency: string
       sfQuoteId: string
       workOrders: DraftWorkOrder[]
-      lines: { customerText: string; quantity: number; unitPrice: number }[]
+      lines: { customerText: string; quantity: number; unitPrice: number; note?: string }[]
     },
     id: string = randomUUID(),
   ): QuoteDraft {
@@ -143,7 +143,7 @@ export class QuoteDraft {
       workOrderIds: input.workOrders.map((workOrder) => workOrder.id),
       lines: [],
     })
-    for (const line of input.lines) draft.addManualLine({ ...line, reason: ManualReason.IMPORTED, note: 'Imported from the existing Salesforce quote' }, true)
+    for (const line of input.lines) draft.addManualLine({ ...line, reason: ManualReason.IMPORTED, note: line.note ?? 'Imported from the existing Salesforce quote' }, true)
     return draft
   }
 

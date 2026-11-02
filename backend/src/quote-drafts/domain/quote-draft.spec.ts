@@ -117,9 +117,13 @@ describe('QuoteDraft', () => {
       currency: 'EUR',
       sfQuoteId: '0Q0X',
       workOrders: [workOrder({ sfQuoteId: '0Q0X' }), workOrder({ id: 'wo-2', workOrderNumber: 'R26-15307', sfQuoteId: '0Q0X' })],
-      lines: [{ customerText: 'Replacement of electrocam', quantity: 1, unitPrice: 2200 }],
+      lines: [
+        { customerText: 'Replacement of electrocam', quantity: 1, unitPrice: 2200 },
+        { customerText: 'Labour', quantity: 2, unitPrice: 90, note: 'Imported from the existing Salesforce quote: 100 with a 10% discount' },
+      ],
     })
     expect(draft).toMatchObject({ status: DraftStatus.SENT, sfQuoteId: '0Q0X', workOrderIds: ['wo-1', 'wo-2'] })
-    expect(draft.lines[0]).toMatchObject({ kind: LineKind.MANUAL, reason: ManualReason.IMPORTED, total: 2200 })
+    expect(draft.lines[0]).toMatchObject({ kind: LineKind.MANUAL, reason: ManualReason.IMPORTED, total: 2200, note: 'Imported from the existing Salesforce quote' })
+    expect(draft.lines[1]).toMatchObject({ total: 180, note: 'Imported from the existing Salesforce quote: 100 with a 10% discount' })
   })
 })
