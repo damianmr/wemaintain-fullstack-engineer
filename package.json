@@ -6,7 +6,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "dev": "pnpm --parallel --stream -r dev",
+    "dev": "pnpm seed && pnpm --parallel --stream -r dev",
     "seed": "pnpm --filter backend seed",
     "test": "pnpm --filter backend test"
   }

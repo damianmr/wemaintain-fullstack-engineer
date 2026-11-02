@@ -71,16 +71,16 @@ With [devenv](https://devenv.sh), which brings Node 22, pnpm and Postgres 16:
 devenv up      # terminal 1: Postgres
 devenv shell   # terminal 2, then:
 pnpm install
-pnpm seed      # creates the tables, loads the data, resets the toy Salesforce
-pnpm dev       # backend, admin and toy Salesforce together
+pnpm dev       # loads the supplied data, then starts the backend, admin and toy Salesforce
 ```
 
 Without devenv: Node 22, pnpm (`corepack enable`) and a Postgres 16 with a
 `wemaintain` database owned by `wemaintain`/`wemaintain` on localhost:5432
 (`docker compose up -d` gives you one). Set `DATABASE_URL` if yours is elsewhere.
 
-`pnpm seed` is safe to re-run: it puts the data and the toy Salesforce back as
-they were.
+Every `pnpm dev` starts from the supplied data: it runs `pnpm seed` first, so
+quote drafts, sent quotes and other changes from the last session are gone.
+`pnpm seed` alone puts the data and the toy Salesforce back as they were.
 
 To query the data, `psql "$DATABASE_URL"`, or
 `psql postgres://wemaintain:wemaintain@127.0.0.1:5432/wemaintain` if you did not set it.

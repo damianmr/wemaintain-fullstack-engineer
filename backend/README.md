@@ -37,7 +37,7 @@ Every module reads the same way:
 
 ## Running it
 
-From the repository root, `pnpm seed && pnpm dev` (see the root README). The
+From the repository root, `pnpm dev`, which seeds first (see the root README). The
 backend alone: `pnpm --filter backend dev`.
 
 Every variable the three apps read:
