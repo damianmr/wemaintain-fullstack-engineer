@@ -4,12 +4,14 @@
 	import type { ContractPricing, PriceListRule, QuoteDraft, WorkOrder } from '../types.ts';
 	import Pill from '../ui/Pill.svelte';
 	import { mutate } from '../work-orders/mutate.ts';
+	import AddWorkOrderDialog from './AddWorkOrderDialog.svelte';
 	import ContractLineDialog from './ContractLineDialog.svelte';
 	import ManualLineDialog from './ManualLineDialog.svelte';
-	import { removeLine, startDraft } from './fake.svelte.ts';
+	import { removeLine, removeWorkOrder, startDraft } from './fake.svelte.ts';
 
 	let { workOrder, pricing, draft }: { workOrder: WorkOrder; pricing: ContractPricing; draft: QuoteDraft | null } = $props();
 
+	let addingWorkOrders = $state(false);
 	let addingContractLine = $state(false);
 	let addingManualLine = $state(false);
 	let manualRule = $state<PriceListRule | null>(null);
@@ -44,6 +46,9 @@
 						<a href="/work-orders/details/{wo.workOrderNumber}">{wo.workOrderNumber}</a>
 						<span class="grey">{wo.deviceNo} · {wo.buildingName}</span>
 						{#if wo.id === workOrder.id}<span class="grey">(this one)</span>{/if}
+						{#if draft.editable && !draft.sfQuoteId && draft.workOrders.length > 1}
+							<button class="link" aria-label="Remove {wo.workOrderNumber} from the draft" onclick={() => mutate(() => removeWorkOrder(draft.id, wo.id), 'Work order removed from the draft')}>✕</button>
+						{/if}
 					</div>
 					<ul>
 						{#each wo.items as item (item.id)}
@@ -58,6 +63,8 @@
 					</ul>
 				</div>
 			{/each}
+
+			{#if draft.editable}<button class="link" onclick={() => (addingWorkOrders = true)}>+ Add work order</button>{/if}
 
 			<h2>Lines</h2>
 			{#each draft.lines as line (line.id)}
@@ -101,6 +108,7 @@
 </div>
 
 {#if draft}
+	<AddWorkOrderDialog bind:open={addingWorkOrders} {draft} />
 	<ContractLineDialog bind:open={addingContractLine} {draft} onuserule={addManualLine} />
 	<ManualLineDialog bind:open={addingManualLine} {draft} rule={manualRule} />
 {/if}

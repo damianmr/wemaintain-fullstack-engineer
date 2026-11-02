@@ -190,3 +190,14 @@ export interface NewManualLine {
 	/** The contract rule the CSM followed, such as 0097AS. */
 	ruleId: string | null;
 }
+
+/** A work order the CSM can bring into a draft: same contract, chargeable, no quote, no draft. */
+export interface DraftCandidate {
+	id: string;
+	workOrderNumber: string;
+	/** The title, or the description when there is no title. */
+	title: string;
+	state: WorkOrderState;
+	deviceNo: string;
+	buildingName: string;
+}

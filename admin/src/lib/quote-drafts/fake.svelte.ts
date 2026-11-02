@@ -1,6 +1,7 @@
 // Fake quote drafts, kept in the browser, to click through the screen before the backend exists.
 // Same function names as the real API that replaces this file.
-import type { ContractPricing, NewContractLine, NewManualLine, PriceListEntry, PriceListRule, PriceListSearch, QuoteDraft, QuoteDraftLine, WorkOrder } from '../types.ts';
+import { getWorkOrder } from '../work-orders/api.ts';
+import type { ContractPricing, DraftCandidate, NewContractLine, NewManualLine, PriceListEntry, PriceListRule, PriceListSearch, QuoteDraft, QuoteDraftLine, WorkOrder } from '../types.ts';
 
 const PRICE_LISTS: Record<string, ContractPricing['priceList']> = {
 	'00019814': { id: 'lindenhome', name: 'Lindenhome AL', currency: 'EUR' },
@@ -55,6 +56,13 @@ const RULES: Record<string, PriceListRule[]> = {
 	meridian: [{ id: 'star-rates', code: null, kind: 'STAR_RATES_ADJUSTMENT', value: 10, description: 'Star Rates: percentage adjustment to Star Rate items', appliesTo: 'agreed rates for work Table A does not list' }]
 };
 
+// Real work orders on the pilot contracts that have no quote yet.
+const CANDIDATES: Record<string, string[]> = {
+	'00019814': ['R26-10874', 'R26-11100', 'R26-11951', 'R26-12340', 'R26-15155', 'R26-15165', 'R26-15429', 'R26-15442'],
+	'00016613': ['R26-11241', 'R26-11707']
+};
+const fetched = new Map<string, WorkOrder>();
+
 const drafts = $state<Record<string, QuoteDraft>>({});
 const listOf = (draft: QuoteDraft) => (draft.currency === 'SGD' ? 'meridian' : 'lindenhome');
 
@@ -88,6 +96,32 @@ export async function startDraft(workOrder: WorkOrder) {
 		lines: [],
 		total: 0
 	});
+}
+
+export async function findWorkOrdersToAdd(draftId: string): Promise<DraftCandidate[]> {
+	const draft = drafts[draftId];
+	const taken = new Set(Object.values(drafts).flatMap((d) => d.workOrders.map((wo) => wo.id)));
+	const found = await Promise.all((CANDIDATES[draft.contractNo] ?? []).map((number) => getWorkOrder(number)));
+	return found
+		.filter((wo): wo is WorkOrder => wo !== null && !taken.has(wo.id))
+		.map((wo) => {
+			fetched.set(wo.id, wo);
+			return { id: wo.id, workOrderNumber: wo.workOrderNumber, title: wo.title ?? wo.description, state: wo.state, deviceNo: wo.device?.deviceNo ?? '', buildingName: wo.device?.building.name ?? '' };
+		});
+}
+
+export async function addWorkOrders(draftId: string, workOrderIds: string[]) {
+	const draft = drafts[draftId];
+	draft.workOrders.push(...workOrderIds.map((id) => toDraftWorkOrder(fetched.get(id)!)));
+	refresh(draft);
+}
+
+export async function removeWorkOrder(draftId: string, workOrderId: string) {
+	const draft = drafts[draftId];
+	const itemIds = new Set(draft.workOrders.find((wo) => wo.id === workOrderId)!.items.map((item) => item.id));
+	draft.workOrders = draft.workOrders.filter((wo) => wo.id !== workOrderId);
+	for (const line of draft.lines) line.coverage = line.coverage.filter((c) => !itemIds.has(c.itemId));
+	refresh(draft);
 }
 
 export async function searchPriceList(draftId: string, search: string): Promise<PriceListSearch> {
