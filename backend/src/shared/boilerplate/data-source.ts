@@ -6,6 +6,7 @@ import { ContractOrmEntity } from '../../contracts/infrastructure/database/contr
 import { CustomerOrmEntity } from '../../contracts/infrastructure/database/customer.orm-entity'
 import { DeviceOrmEntity } from '../../contracts/infrastructure/database/device.orm-entity'
 import { PartOrmEntity } from '../../parts/infrastructure/database/part.orm-entity'
+import { ContractPriceListOrmEntity } from '../../price-lists/infrastructure/database/contract-price-list.orm-entity'
 import { PriceListBandOrmEntity } from '../../price-lists/infrastructure/database/price-list-band.orm-entity'
 import { PriceListEntryOrmEntity } from '../../price-lists/infrastructure/database/price-list-entry.orm-entity'
 import { PriceListRateOrmEntity } from '../../price-lists/infrastructure/database/price-list-rate.orm-entity'
@@ -37,6 +38,7 @@ export const dataSource = new DataSource({
     PriceListEntryOrmEntity,
     PriceListRateOrmEntity,
     PriceListRuleOrmEntity,
+    ContractPriceListOrmEntity,
   ],
   synchronize: true,
 })

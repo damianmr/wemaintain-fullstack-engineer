@@ -5,6 +5,7 @@ import { createGunzip } from 'node:zlib'
 import type { PoolClient } from 'pg'
 import { from as copyFrom } from 'pg-copy-streams'
 import { connect } from '../src/shared/boilerplate/data-source'
+import { seedContractPriceLists } from './contract-price-lists'
 import { seedPriceLists } from './price-lists'
 
 const DATA = join(__dirname, '..', 'data')
@@ -38,6 +39,7 @@ async function seed() {
     client.release()
   }
   await seedPriceLists(db)
+  await seedContractPriceLists(db)
   await db.destroy()
   await resetSalesforce()
 }
