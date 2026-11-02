@@ -85,7 +85,7 @@ quote drafts, sent quotes and other changes from the last session are gone.
 To query the data, `psql "$DATABASE_URL"`, or
 `psql postgres://wemaintain:wemaintain@127.0.0.1:5432/wemaintain` if you did not set it.
 Tables are grouped by schema: `workorders`, `contracts`, `users`, `buildings`,
-`devices` and `salesforce`.
+`devices`, `pricing` (the contract price lists) and `salesforce`.
 
 ## A tour
 

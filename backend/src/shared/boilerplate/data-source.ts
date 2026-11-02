@@ -6,6 +6,11 @@ import { ContractOrmEntity } from '../../contracts/infrastructure/database/contr
 import { CustomerOrmEntity } from '../../contracts/infrastructure/database/customer.orm-entity'
 import { DeviceOrmEntity } from '../../contracts/infrastructure/database/device.orm-entity'
 import { PartOrmEntity } from '../../parts/infrastructure/database/part.orm-entity'
+import { PriceListBandOrmEntity } from '../../price-lists/infrastructure/database/price-list-band.orm-entity'
+import { PriceListEntryOrmEntity } from '../../price-lists/infrastructure/database/price-list-entry.orm-entity'
+import { PriceListRateOrmEntity } from '../../price-lists/infrastructure/database/price-list-rate.orm-entity'
+import { PriceListRuleOrmEntity } from '../../price-lists/infrastructure/database/price-list-rule.orm-entity'
+import { PriceListOrmEntity } from '../../price-lists/infrastructure/database/price-list.orm-entity'
 import { QuoteEventOrmEntity } from '../../quotes/infrastructure/database/quote-event.orm-entity'
 import { QuoteOrmEntity } from '../../quotes/infrastructure/database/quote.orm-entity'
 import { WorkOrderEventOrmEntity } from '../../work-orders/infrastructure/database/work-order-event.orm-entity'
@@ -27,6 +32,11 @@ export const dataSource = new DataSource({
     DeviceOrmEntity,
     ContractOrmEntity,
     ContractDeviceOrmEntity,
+    PriceListOrmEntity,
+    PriceListBandOrmEntity,
+    PriceListEntryOrmEntity,
+    PriceListRateOrmEntity,
+    PriceListRuleOrmEntity,
   ],
   synchronize: true,
 })
@@ -34,7 +44,7 @@ export const dataSource = new DataSource({
 export async function connect(): Promise<DataSource> {
   const admin = new DataSource({ ...dataSource.options, entities: [], synchronize: false } as typeof dataSource.options)
   await admin.initialize()
-  for (const schema of ['workorders', 'contracts', 'users', 'buildings', 'devices']) {
+  for (const schema of ['workorders', 'contracts', 'users', 'buildings', 'devices', 'pricing']) {
     await admin.query(`CREATE SCHEMA IF NOT EXISTS "${schema}"`)
   }
   await admin.destroy()

@@ -16,6 +16,7 @@ src/
   quotes/           quotes: the Salesforce record plus our quote event stream
   contracts/        customers, buildings, devices, contracts (read by quoting; written by the Salesforce sync)
   parts/            the parts catalogue, synced from the ERP
+  price-lists/      the contract price lists (Schedules of Rates), one version per import
   salesforce-sync/  what we do when Salesforce tells us something changed
   schema.graphql    the whole API
   shared/
