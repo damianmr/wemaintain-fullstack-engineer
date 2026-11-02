@@ -7,6 +7,8 @@ type Query {
   workOrder(id: ID!): WorkOrderDetails
   parts(search: String, limit: Int = 20): [Part!]!
   device(id: ID!): Device
+  "Entries and rules of a contract price list whose code, wording or section contains the search."
+  priceListSearch(priceListId: ID!, search: String): PriceListSearch!
 }
 
 type Mutation {
@@ -84,6 +86,8 @@ type WorkOrderDetails {
   "Other work orders on the same Salesforce quote."
   bundledWorkOrders: [WorkOrder!]!
   device: Device
+  "The contract price list that applies today, through the device's contract. Null: the old quote flow applies."
+  contractPricing: ContractPricing
 }
 
 type WorkOrderItem {
@@ -199,4 +203,64 @@ type Contract {
   type: ContractType!
   startDate: DateTime!
   endDate: DateTime!
+}
+
+enum RuleKind { INVOICE_MULTIPLIER QUANTITY_DISCOUNT STAR_RATES_ADJUSTMENT }
+
+type ContractPricing {
+  contractId: ID!
+  contractNo: String!
+  priceList: PriceList!
+}
+
+"One imported version of a client's contract price list."
+type PriceList {
+  id: ID!
+  name: String!
+  currency: String!
+  version: String!
+  importedAt: DateTime!
+}
+
+type PriceListSearch {
+  entries: [PriceListEntry!]!
+  rules: [PriceListRule!]!
+}
+
+type PriceListEntry {
+  id: ID!
+  code: String!
+  section: String!
+  wording: String!
+  unit: String
+  notes: String
+  "False when the list leaves something to confirm, such as a missing unit."
+  pickable: Boolean!
+  rates: [PriceListRate!]!
+}
+
+type PriceListRate {
+  id: ID!
+  amount: Float!
+  "Null when the list has no time bands."
+  band: PriceListBand
+}
+
+type PriceListBand {
+  id: ID!
+  code: String!
+  label: String!
+  timeWindow: String!
+}
+
+"A rule printed in the list, not a price."
+type PriceListRule {
+  id: ID!
+  code: String
+  kind: RuleKind!
+  value: Float!
+  description: String!
+  appliesTo: String!
+  minQuantity: Int
+  maxQuantity: Int
 }

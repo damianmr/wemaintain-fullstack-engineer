@@ -4,6 +4,7 @@ import { GraphQLScalarType } from 'graphql'
 import { createSchema, createYoga } from 'graphql-yoga'
 import { contractResolvers } from '../../contracts/infrastructure/graphql'
 import { partResolvers } from '../../parts/infrastructure/graphql'
+import { priceListResolvers } from '../../price-lists/infrastructure/graphql'
 import { workOrderResolvers } from '../../work-orders/infrastructure/graphql'
 import type { Deps } from './deps'
 
@@ -14,7 +15,7 @@ const DateTime = new GraphQLScalarType({
 
 export function createGraphqlServer(deps: Deps) {
   const resolvers: Record<string, object> = { DateTime }
-  for (const moduleResolvers of [workOrderResolvers, contractResolvers, partResolvers]) {
+  for (const moduleResolvers of [workOrderResolvers, contractResolvers, partResolvers, priceListResolvers]) {
     for (const [type, fields] of Object.entries(moduleResolvers(deps))) {
       resolvers[type] = { ...resolvers[type], ...fields }
     }
