@@ -50,6 +50,7 @@ colleagues.
 | `backend/`     | A slice of our backend: work orders, quotes, contracts, parts. NestJS, Postgres, GraphQL. `data/` holds anonymised production data, one gzipped CSV per table (`.csv.gz`), loaded by `pnpm seed`. | http://localhost:4000/graphql |
 | `admin/`       | A toy version of our admin: the work order list and the work order page. SvelteKit.                                                                                                               | http://localhost:5173         |
 | `salesforce/`  | A toy Salesforce: the API our backend calls, and a quote page to play the sales side. SvelteKit.                                                                                                  | http://localhost:4001         |
+| `shaping/`     | The shaping of C1: the project description (`c1-contract-prices.md`) and the queries behind it. | |
 
 The three apps run together (see "Running it").
 `backend/README.md` is the technical entry point: how the code is laid out,
