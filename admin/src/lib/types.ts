@@ -180,3 +180,13 @@ export interface NewContractLine {
 	quantity: number;
 	coverage: { itemId: string; quantity: number }[];
 }
+
+export interface NewManualLine {
+	customerText: string;
+	quantity: number;
+	unitPrice: number;
+	reason: ManualReason;
+	note: string;
+	/** The contract rule the CSM followed, such as 0097AS. */
+	ruleId: string | null;
+}

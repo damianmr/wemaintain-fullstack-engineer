@@ -1,6 +1,6 @@
 // Fake quote drafts, kept in the browser, to click through the screen before the backend exists.
 // Same function names as the real API that replaces this file.
-import type { ContractPricing, NewContractLine, PriceListEntry, PriceListRule, PriceListSearch, QuoteDraft, QuoteDraftLine, WorkOrder } from '../types.ts';
+import type { ContractPricing, NewContractLine, NewManualLine, PriceListEntry, PriceListRule, PriceListSearch, QuoteDraft, QuoteDraftLine, WorkOrder } from '../types.ts';
 
 const PRICE_LISTS: Record<string, ContractPricing['priceList']> = {
 	'00019814': { id: 'lindenhome', name: 'Lindenhome AL', currency: 'EUR' },
@@ -119,6 +119,26 @@ export async function addContractLine(draftId: string, line: NewContractLine) {
 		note: null,
 		ruleCode: null,
 		coverage: line.coverage.map((c) => ({ ...c, workOrderNumber: items.find((i) => i.item.id === c.itemId)!.workOrderNumber }))
+	});
+	refresh(draft);
+}
+
+export async function addManualLine(draftId: string, line: NewManualLine) {
+	const draft = drafts[draftId];
+	draft.lines.push({
+		id: crypto.randomUUID(),
+		kind: 'MANUAL',
+		code: null,
+		customerText: line.customerText,
+		bandLabel: null,
+		unit: null,
+		quantity: line.quantity,
+		unitPrice: line.unitPrice,
+		total: Math.round(line.unitPrice * line.quantity * 100) / 100,
+		reason: line.reason,
+		note: line.note || null,
+		ruleCode: RULES[listOf(draft)].find((r) => r.id === line.ruleId)?.code ?? null,
+		coverage: []
 	});
 	refresh(draft);
 }

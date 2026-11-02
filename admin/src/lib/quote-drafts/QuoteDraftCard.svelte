@@ -1,15 +1,23 @@
 <script lang="ts">
 	import { money } from '../format.ts';
-	import { itemLabel } from '../labels.ts';
-	import type { ContractPricing, QuoteDraft, WorkOrder } from '../types.ts';
+	import { itemLabel, MANUAL_REASON } from '../labels.ts';
+	import type { ContractPricing, PriceListRule, QuoteDraft, WorkOrder } from '../types.ts';
 	import Pill from '../ui/Pill.svelte';
 	import { mutate } from '../work-orders/mutate.ts';
 	import ContractLineDialog from './ContractLineDialog.svelte';
+	import ManualLineDialog from './ManualLineDialog.svelte';
 	import { removeLine, startDraft } from './fake.svelte.ts';
 
 	let { workOrder, pricing, draft }: { workOrder: WorkOrder; pricing: ContractPricing; draft: QuoteDraft | null } = $props();
 
 	let addingContractLine = $state(false);
+	let addingManualLine = $state(false);
+	let manualRule = $state<PriceListRule | null>(null);
+
+	function addManualLine(rule: PriceListRule | null = null) {
+		manualRule = rule;
+		addingManualLine = true;
+	}
 
 	const currency = $derived(draft?.currency ?? pricing.priceList.currency);
 	// Two lines can cover the same item, even with the same code: a standby hour split over two time bands.
@@ -57,6 +65,9 @@
 					<div class="main">
 						<Pill theme={line.kind === 'CONTRACT' ? 'success' : 'neutral'}>{line.kind === 'CONTRACT' ? 'Contract' : 'Manual'}</Pill>
 						<div>{line.customerText}</div>
+						{#if line.reason}
+							<div class="grey">{MANUAL_REASON[line.reason]}{line.ruleCode ? ` · rule ${line.ruleCode}` : ''}{line.note ? ` · ${line.note}` : ''}</div>
+						{/if}
 						{#if line.coverage.length}
 							<div class="grey">Covers {line.coverage.map((c) => `${c.workOrderNumber} × ${c.quantity}`).join(', ')}</div>
 						{/if}
@@ -82,13 +93,17 @@
 			<button class="primary" disabled={!workOrder.isChargeable} onclick={() => mutate(() => startDraft(workOrder), 'Quote draft started')}>Start draft</button>
 		{:else if draft.editable}
 			<button onclick={() => (addingContractLine = true)}>+ Add from contract list</button>
+			<button onclick={() => addManualLine()}>+ Add manual line</button>
 			<button class="primary" disabled>Send to Salesforce</button>
 			<span class="grey">Sending comes with the backend.</span>
 		{/if}
 	</footer>
 </div>
 
-{#if draft}<ContractLineDialog bind:open={addingContractLine} {draft} />{/if}
+{#if draft}
+	<ContractLineDialog bind:open={addingContractLine} {draft} onuserule={addManualLine} />
+	<ManualLineDialog bind:open={addingManualLine} {draft} rule={manualRule} />
+{/if}
 
 <style>
 	h2 {

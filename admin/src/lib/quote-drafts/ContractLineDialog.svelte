@@ -7,7 +7,11 @@
 	import { mutate } from '../work-orders/mutate.ts';
 	import { addContractLine, searchPriceList } from './fake.svelte.ts';
 
-	let { open = $bindable(false), draft }: { open: boolean; draft: QuoteDraft } = $props();
+	let {
+		open = $bindable(false),
+		draft,
+		onuserule
+	}: { open: boolean; draft: QuoteDraft; onuserule: (rule: PriceListRule) => void } = $props();
 
 	let search = $state('');
 	let entries = $state<PriceListEntry[]>([]);
@@ -43,6 +47,11 @@
 		coverage = coverage.map((c) => (c.itemId === itemId ? { itemId, quantity } : c));
 	}
 
+	function useRule(rule: PriceListRule) {
+		open = false;
+		onuserule(rule);
+	}
+
 	async function add() {
 		const line = { rateId: rateId!, quantity, coverage };
 		if (await mutate(() => addContractLine(draft.id, line), 'Contract line added')) {
@@ -72,7 +81,11 @@
 			<h3>Rules, not prices</h3>
 			<ul>
 				{#each rules as rule (rule.id)}
-					<li><Pill>{rule.code ?? 'Clause'}</Pill> {rule.description} <span class="grey">({rule.kind === 'INVOICE_MULTIPLIER' ? `× ${rule.value}` : `${rule.value}%`} on {rule.appliesTo})</span></li>
+					<li>
+						<Pill>{rule.code ?? 'Clause'}</Pill> {rule.description}
+						<span class="grey">({rule.kind === 'INVOICE_MULTIPLIER' ? `× ${rule.value}` : `${rule.value}%`} on {rule.appliesTo})</span>
+						<button class="link" onclick={() => useRule(rule)}>Use in a manual line</button>
+					</li>
 				{/each}
 			</ul>
 		{/if}

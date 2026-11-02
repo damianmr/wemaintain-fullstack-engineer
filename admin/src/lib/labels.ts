@@ -1,4 +1,4 @@
-import type { Item, QuoteStatus, WorkOrderState } from './types';
+import type { Item, ManualReason, QuoteStatus, WorkOrderState } from './types';
 
 export type Theme = 'neutral' | 'success' | 'warning' | 'danger';
 
@@ -47,3 +47,12 @@ export const PAGE_SIZE = 30;
 /** How a repair item reads in a list: its part, its free-text name, or its kind. */
 export const itemLabel = (item: Item) =>
 	(item.type === 'PART' ? item.part?.name : item.type === 'EXTERNAL_PART' ? item.description : item.type === 'MAN_HOUR' ? 'Labour (hours)' : 'Installation') ?? '';
+
+/** Why a line does not take its price from the contract list. IMPORTED is set by adopting a quote, not picked. */
+export const MANUAL_REASON: Record<ManualReason, string> = {
+	PART_NOT_ON_LIST: 'Part not on the list',
+	SUBCONTRACTED_WORK: 'Subcontracted work',
+	NEGOTIATED_PRICE: 'Negotiated price',
+	IMPORTED: 'Imported from the existing quote',
+	OTHER: 'Other'
+};
