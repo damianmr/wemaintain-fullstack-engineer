@@ -1,5 +1,6 @@
 // A contract price list (Schedule of Rates) as printed in a client's contract.
 // Each import is a version that never changes: a new price means a new version.
+import { InvalidPriceListError } from './errors'
 
 /** A rule printed in the list. It is not a price: C1 shows it, C4 will calculate with it. */
 export enum RuleKind {
@@ -56,4 +57,22 @@ export const isPickable = (entry: { unit?: string | null }) => !!entry.unit
 /** What the customer reads for a contract line: the row as the contract prints it, and the band when the line has one. */
 export function customerText(entry: { code: string; wording: string; unit?: string | null }, band?: { label: string } | null): string {
   return [`${entry.code} ${entry.wording}`, entry.unit, band?.label.toLowerCase()].filter(Boolean).join(', ')
+}
+
+/** Refuses a list whose rates do not match its bands, so a band can never be missing from an entry. */
+export function checkPriceList(list: PriceListContent): void {
+  const bandCodes = list.bands.map((band) => band.code)
+  const codes = new Set<string>()
+  for (const entry of list.entries) {
+    if (codes.has(entry.code)) throw new InvalidPriceListError(`${list.name}: entry ${entry.code} appears twice`)
+    codes.add(entry.code)
+    const rateBands = entry.rates.map((rate) => rate.bandCode ?? null)
+    const expected = bandCodes.length ? bandCodes : [null]
+    if (rateBands.length !== expected.length || expected.some((code) => !rateBands.includes(code))) {
+      throw new InvalidPriceListError(`${list.name}: entry ${entry.code} must have one rate for each band (${expected.join(', ') || 'no band'})`)
+    }
+    if (entry.rates.some((rate) => !Number.isFinite(rate.amount) || rate.amount < 0)) {
+      throw new InvalidPriceListError(`${list.name}: entry ${entry.code} has an invalid amount`)
+    }
+  }
 }

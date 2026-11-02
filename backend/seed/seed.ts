@@ -5,11 +5,12 @@ import { createGunzip } from 'node:zlib'
 import type { PoolClient } from 'pg'
 import { from as copyFrom } from 'pg-copy-streams'
 import { connect } from '../src/shared/boilerplate/data-source'
+import { seedPriceLists } from './price-lists'
 
 const DATA = join(__dirname, '..', 'data')
 const SALESFORCE_SCHEMA = join(__dirname, '..', '..', 'salesforce', 'schema.sql')
 
-/** Creates the tables, empties them, loads data/*.csv.gz (one file per table), then resets the toy Salesforce. */
+/** Creates the tables, empties them, loads data/*.csv.gz (one file per table) and the contract price lists, then resets the toy Salesforce. */
 async function seed() {
   const db = await connect()
   await db.query(readFileSync(SALESFORCE_SCHEMA, 'utf8'))
@@ -36,6 +37,7 @@ async function seed() {
   } finally {
     client.release()
   }
+  await seedPriceLists(db)
   await db.destroy()
   await resetSalesforce()
 }
