@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { money } from '../format.ts';
+	import { date, money } from '../format.ts';
 	import { itemLabel, MANUAL_REASON } from '../labels.ts';
 	import type { ContractPricing, PriceListRule, QuoteDraft, WorkOrder } from '../types.ts';
 	import Pill from '../ui/Pill.svelte';
@@ -70,6 +70,15 @@
 					<div class="alert">The quote has left Draft in Salesforce: this draft can no longer change.</div>
 				{/if}
 			{/if}
+			{#each draft.observations.slice(0, 1) as seen (seen.observedAt)}
+				<div class="alert">
+					Presented to the customer on {date(seen.observedAt)}: {seen.atListPrice} of {seen.contractLines} contract lines at the list price{seen.changedInSalesforce
+						? `, ${seen.changedInSalesforce} changed in Salesforce`
+						: ''}{seen.removedInSalesforce ? `, ${seen.removedInSalesforce} removed` : ''}{seen.addedInSalesforce
+						? `, ${seen.addedInSalesforce} added in Salesforce`
+						: ''}.
+				</div>
+			{/each}
 			<h2>Work orders</h2>
 			{#each draft.workOrders as wo (wo.id)}
 				<div class="work-order">

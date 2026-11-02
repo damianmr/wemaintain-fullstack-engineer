@@ -6,6 +6,7 @@ import { PriceListOrmEntity } from '../../price-lists/infrastructure/database/pr
 import { WorkOrderOrmEntity } from '../../work-orders/infrastructure/database/work-order.orm-entity'
 import { toWorkOrderView } from '../../work-orders/queries/work-order-view'
 import { LineKind } from '../domain/quote-draft'
+import { QuoteDraftObservationOrmEntity } from '../infrastructure/database/quote-draft-observation.orm-entity'
 import { draftQuoteStatus } from '../infrastructure/draft-quote-status'
 import { loadDraftWorkOrders } from '../infrastructure/draft-work-orders'
 
@@ -25,6 +26,7 @@ export async function getQuoteDraftForWorkOrder(input: { workOrderId: string }, 
     // Read live from Salesforce, like the work order's own quote.
     deps.quotes.findLive(draft.sfQuoteId ? [draft.sfQuoteId] : []),
   ])
+  const observations = await deps.db.getRepository(QuoteDraftObservationOrmEntity).find({ where: { draftId: draft.id }, order: { observedAt: 'DESC' } })
   const numberOf = (workOrderId: string) => rows.find((row) => row.id === workOrderId)?.workOrderNumber ?? ''
 
   return {
@@ -58,5 +60,6 @@ export async function getQuoteDraftForWorkOrder(input: { workOrderId: string }, 
       coverage: line.coverage.map((covered) => ({ ...covered, workOrderNumber: numberOf(covered.workOrderId) })),
     })),
     total: draft.total,
+    observations,
   }
 }

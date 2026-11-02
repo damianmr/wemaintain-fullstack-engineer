@@ -165,6 +165,8 @@ export interface Product {
 	price?: number;
 	productName?: string;
 	productDescription?: string;
+	/** Our id for the line, kept on the quote line so we can match it back later. */
+	lineId?: string;
 }
 
 export interface CreateQuoteRequest {
@@ -254,7 +256,8 @@ function setPricedLines(db: Org, quote: SObject, country: string, lines: ReturnT
 			Cost__c: product.cost ?? null,
 			Discount: null,
 			QuotePdf_ProductName__c: product.productName ?? null,
-			Quote_Line_Description__c: product.productDescription ?? null
+			Quote_Line_Description__c: product.productDescription ?? null,
+			WeMaintain_Line_ID__c: product.lineId ?? null
 		})
 	);
 	updateTotal(db, quote);

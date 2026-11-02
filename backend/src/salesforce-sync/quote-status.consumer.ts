@@ -1,4 +1,5 @@
 import type { Deps } from '../shared/boilerplate/deps'
+import { observeSentQuote } from '../quote-drafts/commands/observe-sent-quote'
 import { recordQuoteStatus } from '../quotes/commands/record-quote-status'
 import { QuoteStatusesSF, QuoteStatusesSFtoDomain } from '../quotes/infrastructure/salesforce/quote-status'
 import { registerQuoteChange } from '../work-orders/commands/register-quote-change'
@@ -30,6 +31,9 @@ export async function onQuoteStatusChanged(event: SFQuoteStatusChangeEvent, deps
   const records = await deps.salesforce.query<SFWorkOrderLink>(
     `SELECT Id, RRID__c, Quote__r.QuoteNumber, Quote__r.Status FROM Repair_Request__c WHERE Quote__c = '${event.QuoteId__c}'`,
   )
+  // Presented means the customer received it: the moment the roadmap measures.
+  if (event.To__c === QuoteStatusesSF.Presented) await observeSentQuote({ sfQuoteId: event.QuoteId__c }, deps)
+
   for (const record of records) {
     await registerQuoteChange(
       {

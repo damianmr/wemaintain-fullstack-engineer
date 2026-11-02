@@ -136,6 +136,19 @@ export interface QuoteDraft {
 	workOrders: QuoteDraftWorkOrder[];
 	lines: QuoteDraftLine[];
 	total: number;
+	/** Each time the quote was presented to the customer, newest first. */
+	observations: QuoteDraftObservation[];
+}
+
+/** Which contract lines reached the customer at the list price, read from Salesforce at presentation. */
+export interface QuoteDraftObservation {
+	observedAt: string;
+	contractLines: number;
+	atListPrice: number;
+	changedInSalesforce: number;
+	removedInSalesforce: number;
+	manualLines: number;
+	addedInSalesforce: number;
 }
 
 export interface PriceListBand {

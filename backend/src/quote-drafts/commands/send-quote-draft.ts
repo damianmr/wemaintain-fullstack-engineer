@@ -24,7 +24,14 @@ export async function sendQuoteDraft(input: { draftId: string }, deps: Pick<Deps
     deviceIds: [first, ...workOrders.filter((wo) => wo !== first)].map((wo) => wo.deviceId),
     rrIds: draft.workOrderIds,
     quoteDescription: first.description,
-    products: draft.lines.map((line) => ({ sku: CONTRACT_LINE_SKU, quantity: line.quantity, price: line.unitPrice, cost: null, productName: line.customerText })),
+    products: draft.lines.map((line) => ({
+      sku: CONTRACT_LINE_SKU,
+      quantity: line.quantity,
+      price: line.unitPrice,
+      cost: null,
+      productName: line.customerText,
+      lineId: line.id,
+    })),
   })
 
   const status = QuoteStatusesSFtoDomain[quote.quoteStatus as QuoteStatusesSF] ?? QuoteStatus.DRAFT

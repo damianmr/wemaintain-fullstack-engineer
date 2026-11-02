@@ -13,6 +13,7 @@ import { PriceListRateOrmEntity } from '../../price-lists/infrastructure/databas
 import { PriceListRuleOrmEntity } from '../../price-lists/infrastructure/database/price-list-rule.orm-entity'
 import { PriceListOrmEntity } from '../../price-lists/infrastructure/database/price-list.orm-entity'
 import { QuoteDraftLineItemOrmEntity } from '../../quote-drafts/infrastructure/database/quote-draft-line-item.orm-entity'
+import { QuoteDraftObservationOrmEntity } from '../../quote-drafts/infrastructure/database/quote-draft-observation.orm-entity'
 import { QuoteDraftLineOrmEntity } from '../../quote-drafts/infrastructure/database/quote-draft-line.orm-entity'
 import { QuoteDraftWorkOrderOrmEntity } from '../../quote-drafts/infrastructure/database/quote-draft-work-order.orm-entity'
 import { QuoteDraftOrmEntity } from '../../quote-drafts/infrastructure/database/quote-draft.orm-entity'
@@ -47,6 +48,7 @@ export const dataSource = new DataSource({
     QuoteDraftWorkOrderOrmEntity,
     QuoteDraftLineOrmEntity,
     QuoteDraftLineItemOrmEntity,
+    QuoteDraftObservationOrmEntity,
   ],
   synchronize: true,
 })

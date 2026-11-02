@@ -8,6 +8,7 @@ export const QUOTE_DRAFT = `
 		id contractNo priceListId priceListName currency status editable sendBlockers sfQuoteId sfQuoteLink quoteNumber total
 		workOrders { id workOrderNumber state deviceNo buildingName items { id type partId part { id sku name } quantity description } }
 		lines { id kind code customerText bandLabel unit quantity unitPrice total reason note ruleCode coverage { itemId workOrderNumber quantity } }
+		observations { observedAt contractLines atListPrice changedInSalesforce removedInSalesforce manualLines addedInSalesforce }
 	}`;
 
 export const startDraft = (workOrder: WorkOrder) =>

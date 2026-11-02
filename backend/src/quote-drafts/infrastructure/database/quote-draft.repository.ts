@@ -70,6 +70,7 @@ function toDomain(row: QuoteDraftOrmEntity): QuoteDraft {
         total: line.total,
         coverage: line.coverage.map(({ workOrderId, itemId, quantity }) => ({ workOrderId, itemId, quantity })),
       })),
+    sentLines: row.sentLines ?? [],
   })
 }
 
@@ -82,6 +83,7 @@ function toRow(draft: QuoteDraft): QuoteDraftOrmEntity {
     pricingDate: draft.pricingDate,
     status: draft.status,
     sfQuoteId: draft.sfQuoteId ?? null,
+    sentLines: draft.sentLines,
     workOrders: draft.workOrderIds.map((workOrderId, position) => ({ workOrderId, draftId: draft.id, position })),
     lines: draft.lines.map((line, position) => ({
       id: line.id,

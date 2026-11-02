@@ -70,6 +70,9 @@ export interface ContractRate {
   band?: { label: string } | null
 }
 
+/** A line as it was when the draft last reached Salesforce: what the customer will see unless someone edits it there. */
+export type SentDraftLine = Pick<DraftLine, 'id' | 'kind' | 'quantity' | 'unitPrice'>
+
 export interface QuoteDraftProps {
   id: string
   contractId: string
@@ -80,6 +83,7 @@ export interface QuoteDraftProps {
   sfQuoteId?: string
   workOrderIds: string[]
   lines: DraftLine[]
+  sentLines: SentDraftLine[]
 }
 
 /** One quote being prepared for one contract: every work order on the quote and every line the customer will read. */
@@ -93,6 +97,7 @@ export class QuoteDraft {
   sfQuoteId?: string
   workOrderIds: string[]
   lines: DraftLine[]
+  sentLines: SentDraftLine[]
 
   constructor(props: QuoteDraftProps) {
     Object.assign(this, props)
@@ -112,6 +117,7 @@ export class QuoteDraft {
       status: DraftStatus.OPEN,
       workOrderIds: [input.workOrder.id],
       lines: [],
+      sentLines: [],
     })
   }
 
@@ -142,6 +148,8 @@ export class QuoteDraft {
       sfQuoteId: input.sfQuoteId,
       workOrderIds: input.workOrders.map((workOrder) => workOrder.id),
       lines: [],
+      // Its lines were made the old way, not sent by this draft.
+      sentLines: [],
     })
     for (const line of input.lines) draft.addManualLine({ ...line, reason: ManualReason.IMPORTED, note: line.note ?? 'Imported from the existing Salesforce quote' }, true)
     return draft
@@ -225,6 +233,7 @@ export class QuoteDraft {
   markSent(sfQuoteId: string): void {
     this.status = DraftStatus.SENT
     this.sfQuoteId = sfQuoteId
+    this.sentLines = this.lines.map(({ id, kind, quantity, unitPrice }) => ({ id, kind, quantity, unitPrice }))
   }
 
   get total(): number {

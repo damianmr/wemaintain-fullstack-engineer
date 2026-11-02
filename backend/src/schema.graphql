@@ -305,6 +305,19 @@ type QuoteDraft {
   workOrders: [QuoteDraftWorkOrder!]!
   lines: [QuoteDraftLine!]!
   total: Float!
+  "Each time the quote was presented to the customer, newest first."
+  observations: [QuoteDraftObservation!]!
+}
+
+"Which contract lines reached the customer at the list price, read from Salesforce when the quote was presented."
+type QuoteDraftObservation {
+  observedAt: DateTime!
+  contractLines: Int!
+  atListPrice: Int!
+  changedInSalesforce: Int!
+  removedInSalesforce: Int!
+  manualLines: Int!
+  addedInSalesforce: Int!
 }
 
 type QuoteDraftWorkOrder {

@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, Index, OneToMany, PrimaryColumn, UpdateDateColumn } from 'typeorm'
-import { DraftStatus } from '../../domain/quote-draft'
+import { DraftStatus, SentDraftLine } from '../../domain/quote-draft'
 import type { QuoteDraftLineOrmEntity } from './quote-draft-line.orm-entity'
 import type { QuoteDraftWorkOrderOrmEntity } from './quote-draft-work-order.orm-entity'
 
@@ -13,6 +13,8 @@ export class QuoteDraftOrmEntity {
   @Column('timestamptz') pricingDate: Date
   @Column('enum', { enum: DraftStatus }) status: DraftStatus
   @Column('varchar', { nullable: true }) @Index() sfQuoteId: string | null
+  /** The lines as the draft last sent them to Salesforce: what the measurement compares with. */
+  @Column('jsonb', { default: [] }) sentLines: SentDraftLine[]
   @OneToMany('QuoteDraftWorkOrderOrmEntity', 'draft', { cascade: true, eager: true }) workOrders: QuoteDraftWorkOrderOrmEntity[]
   @OneToMany('QuoteDraftLineOrmEntity', 'draft', { cascade: true, eager: true }) lines: QuoteDraftLineOrmEntity[]
   @CreateDateColumn({ type: 'timestamptz' }) createdAt: Date

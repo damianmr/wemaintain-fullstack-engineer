@@ -91,8 +91,12 @@ describe('QuoteDraft', () => {
 
   it('stays editable after sending while the Salesforce quote is Draft, and closes once it moves on', () => {
     const draft = newDraft()
+    draft.addManualLine({ customerText: 'Labour', quantity: 1, unitPrice: 103.72, reason: ManualReason.OTHER })
     draft.markSent('0Q0X')
     expect(draft.status).toBe(DraftStatus.SENT)
+    // What was sent stays known even if the draft changes before the quote is updated.
+    draft.removeLine(draft.lines[0].id)
+    expect(draft.sentLines).toEqual([expect.objectContaining({ kind: LineKind.MANUAL, unitPrice: 103.72 })])
     expect(draft.isEditable(QuoteStatus.DRAFT)).toBe(true)
     expect(() => draft.assertEditable(QuoteStatus.TO_SIGN)).toThrow(DraftNotEditableError)
   })
