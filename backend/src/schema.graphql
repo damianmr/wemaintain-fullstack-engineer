@@ -4,6 +4,7 @@ type Query {
   """
   search matches the work order number, its title, or the client's company name.
   withPriceList keeps the work orders whose contract has a price list today: those that show the quote draft card.
+  chargeable keeps the work orders that need a quote.
   """
   workOrders(
     limit: Int = 50
@@ -13,6 +14,7 @@ type Query {
     buildingId: ID
     search: String
     withPriceList: Boolean
+    chargeable: Boolean
     quote: QuoteFilter
   ): WorkOrderPage!
   "id is the work order id or its number."

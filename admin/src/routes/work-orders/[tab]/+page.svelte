@@ -9,7 +9,7 @@
 	const pages = $derived(Math.max(1, Math.ceil(data.totalCount / PAGE_SIZE)));
 	/** The list's filters as URL parameters, kept across tabs and pages. The state belongs to its tab, so pages keep it and tabs do not. */
 	const query = (extra: Record<string, string> = {}) => {
-		const params = new URLSearchParams({ ...(data.search && { search: data.search }), ...(data.withPriceList && { priced: '1' }), ...(data.quote && { quote: data.quote }), ...extra });
+		const params = new URLSearchParams({ ...(data.search && { search: data.search }), ...(data.withPriceList && { priced: '1' }), ...(data.chargeable && { chargeable: '1' }), ...(data.quote && { quote: data.quote }), ...extra });
 		return params.size ? `?${params}` : '';
 	};
 </script>
@@ -35,6 +35,10 @@
 	<label>
 		<input type="checkbox" name="priced" value="1" checked={data.withPriceList} onchange={(e) => e.currentTarget.form?.requestSubmit()} />
 		Only contracts with a price list
+	</label>
+	<label>
+		<input type="checkbox" name="chargeable" value="1" checked={data.chargeable} onchange={(e) => e.currentTarget.form?.requestSubmit()} />
+		Only chargeable
 	</label>
 </form>
 

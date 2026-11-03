@@ -200,9 +200,9 @@ The ones that change the plan most:
 the apps. Everything done in a session is gone at the next start.
 
 The work-order list helps to find examples. It searches by client name, and
-filters by status, by quote, and to "Only contracts with a price list". On
-Ongoing, Quote to send with that box ticked shows the 22 work orders where a
-CSM would start or adopt a draft.
+filters by status, by quote, to "Only contracts with a price list" and to
+"Only chargeable". On Ongoing, Quote to send with the price-list box ticked
+shows the 22 work orders where a CSM would start or adopt a draft.
 
 - Lindenhome, several buildings: open R26-15442, start a draft, add R26-15155,
   add 0435AS and a manual line from rule 0097AS, send.

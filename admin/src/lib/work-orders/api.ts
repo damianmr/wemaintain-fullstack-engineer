@@ -9,12 +9,12 @@ const DEVICE = `device {
 }`;
 
 export const listWorkOrders = (
-	variables: { states: WorkOrderState[]; search?: string; withPriceList?: boolean; quote?: QuoteFilter; limit: number; offset: number },
+	variables: { states: WorkOrderState[]; search?: string; withPriceList?: boolean; chargeable?: boolean; quote?: QuoteFilter; limit: number; offset: number },
 	fetcher?: typeof fetch
 ) =>
 	gql<{ workOrders: { totalCount: number; items: WorkOrder[] } }>(
-		`query WorkOrders($states: [WorkOrderState!], $search: String, $withPriceList: Boolean, $quote: QuoteFilter, $limit: Int, $offset: Int) {
-			workOrders(states: $states, search: $search, withPriceList: $withPriceList, quote: $quote, limit: $limit, offset: $offset) {
+		`query WorkOrders($states: [WorkOrderState!], $search: String, $withPriceList: Boolean, $chargeable: Boolean, $quote: QuoteFilter, $limit: Int, $offset: Int) {
+			workOrders(states: $states, search: $search, withPriceList: $withPriceList, chargeable: $chargeable, quote: $quote, limit: $limit, offset: $offset) {
 				totalCount
 				items { id workOrderNumber title state urgencyLevel createdAt quoteNumber quoteStatus quoteDraftId ${DEVICE} }
 			}

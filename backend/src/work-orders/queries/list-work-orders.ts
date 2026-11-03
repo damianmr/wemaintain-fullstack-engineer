@@ -36,7 +36,7 @@ const QUOTE_FILTERS = {
 }
 
 export async function listWorkOrders(
-  input: { limit?: number; offset?: number; states?: WorkOrderState[]; sfQuoteId?: string; buildingId?: string; search?: string; withPriceList?: boolean; quote?: QuoteFilter },
+  input: { limit?: number; offset?: number; states?: WorkOrderState[]; sfQuoteId?: string; buildingId?: string; search?: string; withPriceList?: boolean; chargeable?: boolean; quote?: QuoteFilter },
   deps: Pick<Deps, 'db'>,
 ): Promise<{ items: WorkOrderView[]; totalCount: number }> {
   const search = input.search && `%${input.search}%`
@@ -48,6 +48,7 @@ export async function listWorkOrders(
   const filters = {
     ...(input.states?.length && { state: In(input.states) }),
     ...(input.sfQuoteId && { sfQuoteId: input.sfQuoteId }),
+    ...(input.chargeable && { chargeable: true }),
     ...(input.quote && QUOTE_FILTERS[input.quote]),
   }
   const where = search
