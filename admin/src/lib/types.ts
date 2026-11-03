@@ -134,6 +134,8 @@ export interface QuoteDraft {
 	editable: boolean;
 	/** Why the draft cannot be sent yet. Empty when it can. */
 	sendBlockers: string[];
+	/** After a send: the Salesforce quote is behind the draft. */
+	unsentChanges: boolean;
 	sfQuoteId: string | null;
 	sfQuoteLink: string | null;
 	quoteNumber: string | null;

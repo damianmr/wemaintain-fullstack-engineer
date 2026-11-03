@@ -5,7 +5,7 @@ import type { DraftCandidate, NewContractLine, NewManualLine, PriceListSearch, W
 export const QUOTE_DRAFT = `
 	contractPricing { contractId contractNo priceList { id name currency } }
 	quoteDraft {
-		id contractNo priceListId priceListName currency status editable sendBlockers sfQuoteId sfQuoteLink quoteNumber total
+		id contractNo priceListId priceListName currency status editable sendBlockers unsentChanges sfQuoteId sfQuoteLink quoteNumber total
 		workOrders { id workOrderNumber state deviceNo buildingName items { id type partId part { id sku name } quantity description } }
 		lines { id kind code customerText bandLabel unit quantity unitPrice total reason note ruleCode coverage { itemId workOrderNumber quantity } }
 		observations { observedAt contractLines atListPrice changedInSalesforce removedInSalesforce manualLines addedInSalesforce }

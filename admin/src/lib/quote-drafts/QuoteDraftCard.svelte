@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { date, money } from '../format.ts';
-	import { itemLabel, MANUAL_REASON } from '../labels.ts';
+	import { itemLabel, MANUAL_REASON, quoteStatusPill } from '../labels.ts';
 	import type { ContractPricing, Item, PriceListRule, QuoteDraft, WorkOrder, WorkOrderState } from '../types.ts';
 	import Pill from '../ui/Pill.svelte';
 	import { mutate } from '../work-orders/mutate.ts';
@@ -46,6 +46,11 @@
 		if (link) window.open(link, '_blank', 'noopener,noreferrer');
 	}
 
+	// The Salesforce quote, read live with the work order: the one place the page shows it on a contract with a price list.
+	const sfLink = $derived(draft?.sfQuoteLink ?? workOrder.sfQuoteLink);
+	const sfNumber = $derived(draft?.quoteNumber ?? workOrder.quote?.number ?? workOrder.quoteNumber);
+	const sfStatus = $derived(quoteStatusPill(workOrder.quote?.status ?? workOrder.quoteStatus, workOrder.items));
+
 	// What supply still has to do on a work order, by the rule the backend uses to refuse a send.
 	type Supply = { id: string; workOrderNumber: string; state: WorkOrderState; items: Pick<Item, 'type' | 'partId'>[] };
 	const waitingFor = (wo: Supply) =>
@@ -64,10 +69,18 @@
 
 <div class="card">
 	<header>
-		<h1>Quote draft</h1>
-		<span class="grey">{pricing.priceList.name} · Contract {pricing.contractNo} · {currency}</span>
+		<h1>Quote</h1>
+		<span class="grey">{pricing.priceList.name}</span>
 	</header>
 	<div class="body">
+		{#if sfLink}
+			<div class="summary">
+				<span class="grey">Salesforce</span>
+				<a href={sfLink} target="_blank" rel="noopener noreferrer">↗ {sfNumber}</a>
+				<Pill theme={sfStatus[1]}>{sfStatus[0]}</Pill>
+				{#if workOrder.quote}<strong class="price">{money(workOrder.quote.grandTotal, workOrder.quote.currencyISOCode)}</strong>{/if}
+			</div>
+		{/if}
 		{#if !draft && !workOrder.isChargeable}
 			<p class="grey">This work order is not chargeable.</p>
 		{:else if !draft && adoptable}
@@ -85,18 +98,21 @@
 			{/if}
 		{:else if !draft && workOrder.sfQuoteId}
 			<p class="grey">The Salesforce quote is past Draft, so it can't be priced here. Move it back to Draft in Salesforce to change it.</p>
+			{#if workOrder.bundledWorkOrders.length}
+				<p class="grey">
+					Also on this quote:
+					{#each workOrder.bundledWorkOrders as other, i (other.id)}{i ? ', ' : ''}<a href="/work-orders/details/{other.workOrderNumber}">{other.workOrderNumber}</a>{/each}
+				</p>
+			{/if}
 		{:else if !draft}
 			<p class="grey">No quote yet.</p>
 		{:else}
-			{#if draft.sfQuoteLink}
-				<p>
-					Salesforce quote <a href={draft.sfQuoteLink} target="_blank" rel="noopener noreferrer">↗ {draft.quoteNumber ?? draft.sfQuoteId}</a>
-				</p>
-				{#if draft.editable}
-					<div class="alert warning"><span class="icon" aria-hidden="true">⚠︎</span>Updating the quote replaces its lines with these.</div>
-				{:else}
-					<div class="alert">The quote is past Draft in Salesforce, so this draft is closed.</div>
-				{/if}
+			{#if draft.sfQuoteId && !draft.editable}
+				<div class="alert">The quote is past Draft in Salesforce, so this draft is closed.</div>
+			{:else if draft.sfQuoteId && draft.unsentChanges}
+				<div class="alert warning">
+					<span class="icon" aria-hidden="true">⚠︎</span><strong>Changes not sent.</strong> Updating the quote replaces its lines with these.
+				</div>
 			{/if}
 			{#each draft.observations.slice(0, 1) as seen (seen.observedAt)}
 				<div class="alert">
@@ -199,6 +215,18 @@
 {/if}
 
 <style>
+	.summary {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 8px;
+		padding-bottom: 12px;
+		margin-bottom: 12px;
+		border-bottom: 1px solid #eceef3;
+	}
+	.summary .price {
+		margin-left: auto;
+	}
 	h2 {
 		font-size: 14px;
 		margin: 16px 0 8px;
