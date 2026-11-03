@@ -36,9 +36,9 @@ export function quoteStatusPill(status: QuoteStatus | null | undefined, items: I
 /** The old way: a Salesforce quote made with Generate or Attach, not from a quote draft. */
 export const QUOTE_FILTER: Record<QuoteFilter, string> = {
 	NO_QUOTE: 'No quote yet',
-	IN_QUOTE_DRAFT: 'In a quote draft',
-	OLD_WAY_DRAFT: 'Salesforce Draft, made the old way',
-	OLD_WAY_PAST_DRAFT: 'Salesforce quote past Draft, made the old way'
+	IN_QUOTE_DRAFT: 'Priced with the contract list',
+	OLD_WAY_DRAFT: 'Old quote, can be adopted',
+	OLD_WAY_PAST_DRAFT: 'Old quote, already sent'
 };
 
 export const TABS = {

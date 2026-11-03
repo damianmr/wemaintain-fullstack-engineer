@@ -202,8 +202,8 @@ the apps. Everything done in a session is gone at the next start.
 The work-order list helps to find examples. It searches by client name, and
 filters by quote, to "Only contracts with a price list" and to "Only
 chargeable". On Ongoing, with both boxes ticked, "No quote yet" shows the 20
-work orders where a CSM would start a draft, and "Salesforce Draft, made the
-old way" the 6 where they would adopt one.
+work orders where a CSM would start a draft, and "Old quote, can be adopted"
+the 6 Draft quotes made before C1.
 
 - Lindenhome, several buildings: open R26-15442, start a draft, add R26-15155,
   add 0435AS and a manual line from rule 0097AS, send.
