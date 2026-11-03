@@ -9,8 +9,6 @@ export type WorkOrderState =
 	| 'CANCELLED';
 
 export type QuoteStatus = 'DRAFT' | 'TO_SIGN' | 'VALIDATION' | 'SIGNED' | 'WORKS_IN_PROGRESS' | 'TO_BE_BILLED' | 'BILLED' | 'REFUSED';
-/** Where a work order's quote stands, to filter the list. */
-export type QuoteFilter = 'NO_QUOTE' | 'IN_QUOTE_DRAFT' | 'OLD_WAY_DRAFT' | 'OLD_WAY_PAST_DRAFT';
 
 export type ItemType = 'PART' | 'MAN_HOUR' | 'EXTERNAL_PART' | 'TECH_SUPPORT' | 'INSTALLATION';
 

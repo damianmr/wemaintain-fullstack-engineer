@@ -1,4 +1,4 @@
-import type { Item, ManualReason, QuoteFilter, QuoteStatus, WorkOrderState } from './types';
+import type { Item, ManualReason, QuoteStatus, WorkOrderState } from './types';
 
 export type Theme = 'neutral' | 'success' | 'warning' | 'danger';
 
@@ -32,14 +32,6 @@ export function quoteStatusPill(status: QuoteStatus | null | undefined, items: I
 	const priced = items.filter((i) => i.type === 'PART' || i.type === 'EXTERNAL_PART').every((i) => i.price != null);
 	return priced ? QUOTE.DRAFT : ['Waiting for part cost', 'warning'];
 }
-
-/** The old way: a Salesforce quote made with Generate or Attach, not from a quote draft. */
-export const QUOTE_FILTER: Record<QuoteFilter, string> = {
-	NO_QUOTE: 'No quote yet',
-	IN_QUOTE_DRAFT: 'Priced with the contract list',
-	OLD_WAY_DRAFT: 'Old quote, can be imported',
-	OLD_WAY_PAST_DRAFT: 'Old quote, already sent'
-};
 
 export const TABS = {
 	ongoing: ['PART_TO_ESTIMATE', 'QUOTE_TO_SEND', 'QUOTE_TO_SIGN_BY_CUSTOMER', 'QUOTE_TO_VERIFY_PO', 'WORK_TO_DO'],

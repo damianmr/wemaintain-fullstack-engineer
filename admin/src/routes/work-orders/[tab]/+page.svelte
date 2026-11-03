@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { date } from '#lib/format.ts';
-	import { PAGE_SIZE, QUOTE_FILTER, STATE, TABS, URGENCY, quoteStatusPill } from '#lib/labels.ts';
+	import { PAGE_SIZE, STATE, TABS, URGENCY, quoteStatusPill } from '#lib/labels.ts';
 	import Pill from '#lib/ui/Pill.svelte';
 	import type { PageProps } from './$types';
 
@@ -9,7 +9,7 @@
 	const pages = $derived(Math.max(1, Math.ceil(data.totalCount / PAGE_SIZE)));
 	/** The list's filters as URL parameters, kept across tabs and pages. */
 	const query = (extra: Record<string, string> = {}) => {
-		const params = new URLSearchParams({ ...(data.search && { search: data.search }), ...(data.withPriceList && { priced: '1' }), ...(data.chargeable && { chargeable: '1' }), ...(data.quote && { quote: data.quote }), ...extra });
+		const params = new URLSearchParams({ ...(data.search && { search: data.search }), ...(data.withPriceList && { priced: '1' }), ...(data.chargeable && { chargeable: '1' }), ...extra });
 		return params.size ? `?${params}` : '';
 	};
 </script>
@@ -18,12 +18,6 @@
 
 <form class="filters" method="GET">
 	<input name="search" value={data.search} placeholder="Search by number, title or client" />
-	<select name="quote" value={data.quote ?? ''} onchange={(e) => e.currentTarget.form?.requestSubmit()}>
-		<option value="">Any quote</option>
-		{#each Object.entries(QUOTE_FILTER) as [value, label] (value)}
-			<option {value}>{label}</option>
-		{/each}
-	</select>
 	<label>
 		<input type="checkbox" name="priced" value="1" checked={data.withPriceList} onchange={(e) => e.currentTarget.form?.requestSubmit()} />
 		Only contracts with a price list

@@ -200,10 +200,10 @@ The ones that change the plan most:
 the apps. Everything done in a session is gone at the next start.
 
 The work-order list helps to find examples. It searches by client name, and
-filters by quote, to "Only contracts with a price list" and to "Only
-chargeable". On Ongoing, with both boxes ticked, "No quote yet" shows the 20
-work orders where a CSM would start a draft, and "Old quote, can be imported"
-the 6 Draft quotes made before C1.
+filters to "Only contracts with a price list" and "Only chargeable". On
+Ongoing, with both ticked, the Quote column shows where each work order stands:
+no quote yet (20, where a CSM would start a draft), priced with the contract
+list, or an old quote (6 still in Draft, which can be imported).
 
 - Lindenhome, several buildings: open R26-15442, start a draft, add R26-15155,
   add 0435AS and a manual line from rule 0097AS, send.
