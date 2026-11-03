@@ -1,8 +1,11 @@
 scalar DateTime
 
 type Query {
-  "search matches the work order number, its title, or the client's company name."
-  workOrders(limit: Int = 50, offset: Int = 0, states: [WorkOrderState!], sfQuoteId: String, buildingId: ID, search: String): WorkOrderPage!
+  """
+  search matches the work order number, its title, or the client's company name.
+  withPriceList keeps the work orders whose contract has a price list today: those that show the quote draft card.
+  """
+  workOrders(limit: Int = 50, offset: Int = 0, states: [WorkOrderState!], sfQuoteId: String, buildingId: ID, search: String, withPriceList: Boolean): WorkOrderPage!
   "id is the work order id or its number."
   workOrder(id: ID!): WorkOrderDetails
   parts(search: String, limit: Int = 20): [Part!]!

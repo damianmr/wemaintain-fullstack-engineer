@@ -7,18 +7,26 @@
 
 	let { data }: PageProps = $props();
 	const pages = $derived(Math.max(1, Math.ceil(data.totalCount / PAGE_SIZE)));
-	const query = (page: number) => `?${new URLSearchParams({ ...(data.search && { search: data.search }), page: String(page) })}`;
+	/** The list's filters as URL parameters, kept across tabs and pages. */
+	const query = (extra: Record<string, string> = {}) => {
+		const params = new URLSearchParams({ ...(data.search && { search: data.search }), ...(data.withPriceList && { priced: '1' }), ...extra });
+		return params.size ? `?${params}` : '';
+	};
 </script>
 
 <h1>Work orders</h1>
 
-<form class="search" method="GET">
+<form class="filters" method="GET">
 	<input name="search" value={data.search} placeholder="Search by number, title or client" />
+	<label>
+		<input type="checkbox" name="priced" value="1" checked={data.withPriceList} onchange={(e) => e.currentTarget.form?.requestSubmit()} />
+		Only contracts with a price list
+	</label>
 </form>
 
 <nav class="tabs">
 	{#each Object.keys(TABS) as tab (tab)}
-		<a href="/work-orders/{tab}{data.search ? `?search=${encodeURIComponent(data.search)}` : ''}" class:active={tab === data.tab}>{tab[0].toUpperCase() + tab.slice(1)}</a>
+		<a href="/work-orders/{tab}{query()}" class:active={tab === data.tab}>{tab[0].toUpperCase() + tab.slice(1)}</a>
 	{/each}
 </nav>
 
@@ -51,9 +59,9 @@
 	<footer>
 		<span class="grey">{data.totalCount} work orders</span>
 		<span class="pager">
-			{#if data.page > 1}<a href={query(data.page - 1)}>‹ Previous</a>{/if}
+			{#if data.page > 1}<a href={query({ page: String(data.page - 1) })}>‹ Previous</a>{/if}
 			<span>Page {data.page} / {pages}</span>
-			{#if data.page < pages}<a href={query(data.page + 1)}>Next ›</a>{/if}
+			{#if data.page < pages}<a href={query({ page: String(data.page + 1) })}>Next ›</a>{/if}
 		</span>
 	</footer>
 </div>
@@ -63,9 +71,19 @@
 		font-size: 22px;
 		margin: 0 0 16px;
 	}
-	.search input {
-		width: 320px;
+	.filters {
+		display: flex;
+		gap: 16px;
+		align-items: center;
 		margin-bottom: 12px;
+	}
+	.filters input[name='search'] {
+		width: 320px;
+	}
+	.filters label {
+		display: flex;
+		gap: 6px;
+		align-items: center;
 	}
 	.tabs {
 		display: flex;

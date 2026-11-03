@@ -8,10 +8,13 @@ const DEVICE = `device {
 	contracts { contract { contractNo type } }
 }`;
 
-export const listWorkOrders = (variables: { states: WorkOrderState[]; search?: string; limit: number; offset: number }, fetcher?: typeof fetch) =>
+export const listWorkOrders = (
+	variables: { states: WorkOrderState[]; search?: string; withPriceList?: boolean; limit: number; offset: number },
+	fetcher?: typeof fetch
+) =>
 	gql<{ workOrders: { totalCount: number; items: WorkOrder[] } }>(
-		`query WorkOrders($states: [WorkOrderState!], $search: String, $limit: Int, $offset: Int) {
-			workOrders(states: $states, search: $search, limit: $limit, offset: $offset) {
+		`query WorkOrders($states: [WorkOrderState!], $search: String, $withPriceList: Boolean, $limit: Int, $offset: Int) {
+			workOrders(states: $states, search: $search, withPriceList: $withPriceList, limit: $limit, offset: $offset) {
 				totalCount
 				items { id workOrderNumber title state urgencyLevel createdAt ${DEVICE} }
 			}
