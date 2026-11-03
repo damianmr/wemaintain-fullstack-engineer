@@ -5,7 +5,16 @@ type Query {
   search matches the work order number, its title, or the client's company name.
   withPriceList keeps the work orders whose contract has a price list today: those that show the quote draft card.
   """
-  workOrders(limit: Int = 50, offset: Int = 0, states: [WorkOrderState!], sfQuoteId: String, buildingId: ID, search: String, withPriceList: Boolean): WorkOrderPage!
+  workOrders(
+    limit: Int = 50
+    offset: Int = 0
+    states: [WorkOrderState!]
+    sfQuoteId: String
+    buildingId: ID
+    search: String
+    withPriceList: Boolean
+    quote: QuoteFilter
+  ): WorkOrderPage!
   "id is the work order id or its number."
   workOrder(id: ID!): WorkOrderDetails
   parts(search: String, limit: Int = 20): [Part!]!
@@ -56,6 +65,14 @@ enum WorkOrderState {
 enum WorkOrderItemType { PART MAN_HOUR EXTERNAL_PART TECH_SUPPORT INSTALLATION }
 enum QuoteStatus { DRAFT TO_SIGN VALIDATION SIGNED WORKS_IN_PROGRESS TO_BE_BILLED BILLED REFUSED }
 enum ContractType { BASIC ADVANCED COMPREHENSIVE CLIENT_SPECIFIC }
+"Where a work order's quote stands. The old way: a Salesforce quote made by Generate or Attach, not by a quote draft."
+enum QuoteFilter {
+  NO_QUOTE
+  IN_QUOTE_DRAFT
+  "Can be adopted into a quote draft."
+  OLD_WAY_DRAFT
+  OLD_WAY_PAST_DRAFT
+}
 
 type WorkOrderPage {
   items: [WorkOrder!]!
@@ -79,6 +96,8 @@ type WorkOrder {
   sfQuoteLink: String
   quoteNumber: String
   quoteStatus: QuoteStatus
+  "The quote draft this work order is in, if any."
+  quoteDraftId: ID
   createdAt: DateTime!
   updatedAt: DateTime!
 }

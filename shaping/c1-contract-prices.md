@@ -196,6 +196,11 @@ The ones that change the plan most:
 `pnpm dev` loads the supplied data, the two lists and the six links, then starts
 the apps. Everything done in a session is gone at the next start.
 
+The work-order list helps to find examples. It searches by client name, and
+filters by status, by quote, and to "Only contracts with a price list". On
+Ongoing, Quote to send with that box ticked shows the 22 work orders where a
+CSM would start or adopt a draft.
+
 - Lindenhome, several buildings: open R26-15442, start a draft, add R26-15155,
   add 0435AS and a manual line from rule 0097AS, send.
 - Meridian, time bands: open R26-11241, add SOR item 65 after office hours x 8.

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { date } from '#lib/format.ts';
-	import { PAGE_SIZE, STATE, TABS, URGENCY } from '#lib/labels.ts';
+	import { PAGE_SIZE, QUOTE_FILTER, STATE, TABS, URGENCY, quoteStatusPill } from '#lib/labels.ts';
 	import Pill from '#lib/ui/Pill.svelte';
 	import type { PageProps } from './$types';
 
@@ -9,7 +9,7 @@
 	const pages = $derived(Math.max(1, Math.ceil(data.totalCount / PAGE_SIZE)));
 	/** The list's filters as URL parameters, kept across tabs and pages. The state belongs to its tab, so pages keep it and tabs do not. */
 	const query = (extra: Record<string, string> = {}) => {
-		const params = new URLSearchParams({ ...(data.search && { search: data.search }), ...(data.withPriceList && { priced: '1' }), ...extra });
+		const params = new URLSearchParams({ ...(data.search && { search: data.search }), ...(data.withPriceList && { priced: '1' }), ...(data.quote && { quote: data.quote }), ...extra });
 		return params.size ? `?${params}` : '';
 	};
 </script>
@@ -26,6 +26,12 @@
 			{/each}
 		</select>
 	{/if}
+	<select name="quote" value={data.quote ?? ''} onchange={(e) => e.currentTarget.form?.requestSubmit()}>
+		<option value="">Any quote</option>
+		{#each Object.entries(QUOTE_FILTER) as [value, label] (value)}
+			<option {value}>{label}</option>
+		{/each}
+	</select>
 	<label>
 		<input type="checkbox" name="priced" value="1" checked={data.withPriceList} onchange={(e) => e.currentTarget.form?.requestSubmit()} />
 		Only contracts with a price list
@@ -41,7 +47,7 @@
 <div class="card">
 	<table>
 		<thead>
-			<tr><th>Date</th><th>Work order</th><th>Site - Unit</th><th>Client</th><th>Status</th><th>Urgency</th></tr>
+			<tr><th>Date</th><th>Work order</th><th>Site - Unit</th><th>Client</th><th>Status</th><th>Quote</th><th>Urgency</th></tr>
 		</thead>
 		<tbody>
 			{#each data.items as wo (wo.id)}
@@ -57,10 +63,19 @@
 						<div class="grey">{wo.device?.contracts[0]?.contract.type ?? ''}</div>
 					</td>
 					<td><Pill theme={STATE[wo.state][1]}>{STATE[wo.state][0]}</Pill></td>
+					<td>
+						{#if wo.quoteDraftId}<Pill theme="success">Quote draft</Pill>{/if}
+						{#if wo.quoteNumber}
+							<div>{wo.quoteNumber}</div>
+							<div class="grey">{quoteStatusPill(wo.quoteStatus, [])[0]}</div>
+						{:else if !wo.quoteDraftId}
+							<span class="grey">No quote</span>
+						{/if}
+					</td>
 					<td class="urgency">{URGENCY[wo.urgencyLevel]}</td>
 				</tr>
 			{:else}
-				<tr><td colspan="6" class="grey">No work orders</td></tr>
+				<tr><td colspan="7" class="grey">No work orders</td></tr>
 			{/each}
 		</tbody>
 	</table>
@@ -81,7 +96,8 @@
 	}
 	.filters {
 		display: flex;
-		gap: 16px;
+		flex-wrap: wrap;
+		gap: 8px 16px;
 		align-items: center;
 		margin-bottom: 12px;
 	}

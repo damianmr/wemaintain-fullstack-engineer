@@ -10,6 +10,7 @@ import { startQuoteDraft } from '../commands/start-quote-draft'
 import { QuoteDraft } from '../domain/quote-draft'
 import { findDraftCandidates } from '../queries/find-draft-candidates'
 import { getQuoteDraftForWorkOrder } from '../queries/get-quote-draft'
+import { QuoteDraftWorkOrderOrmEntity } from './database/quote-draft-work-order.orm-entity'
 
 type Args = Record<string, any>
 
@@ -30,6 +31,10 @@ export function quoteDraftResolvers(deps: Deps) {
         reread(await addManualLine({ ...input, note: input.note ?? undefined, ruleId: input.ruleId ?? undefined }, deps)),
       removeDraftLine: async (_: unknown, args: Args) => reread(await removeDraftLine({ draftId: args.draftId, lineId: args.lineId }, deps)),
       sendQuoteDraft: async (_: unknown, args: Args) => reread(await sendQuoteDraft({ draftId: args.draftId }, deps)),
+    },
+    WorkOrder: {
+      quoteDraftId: async (workOrder: { id: string }) =>
+        (await deps.db.getRepository(QuoteDraftWorkOrderOrmEntity).findOneBy({ workOrderId: workOrder.id }))?.draftId ?? null,
     },
     WorkOrderDetails: {
       quoteDraft: (workOrder: { id: string }) => getQuoteDraftForWorkOrder({ workOrderId: workOrder.id }, deps),

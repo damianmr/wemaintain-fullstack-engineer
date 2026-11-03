@@ -1,6 +1,6 @@
 import { gql } from '../graphql.ts';
 import { QUOTE_DRAFT } from '../quote-drafts/api.ts';
-import type { Part, WorkOrder, WorkOrderState } from '../types.ts';
+import type { Part, QuoteFilter, WorkOrder, WorkOrderState } from '../types.ts';
 
 const DEVICE = `device {
 	id deviceNo
@@ -9,14 +9,14 @@ const DEVICE = `device {
 }`;
 
 export const listWorkOrders = (
-	variables: { states: WorkOrderState[]; search?: string; withPriceList?: boolean; limit: number; offset: number },
+	variables: { states: WorkOrderState[]; search?: string; withPriceList?: boolean; quote?: QuoteFilter; limit: number; offset: number },
 	fetcher?: typeof fetch
 ) =>
 	gql<{ workOrders: { totalCount: number; items: WorkOrder[] } }>(
-		`query WorkOrders($states: [WorkOrderState!], $search: String, $withPriceList: Boolean, $limit: Int, $offset: Int) {
-			workOrders(states: $states, search: $search, withPriceList: $withPriceList, limit: $limit, offset: $offset) {
+		`query WorkOrders($states: [WorkOrderState!], $search: String, $withPriceList: Boolean, $quote: QuoteFilter, $limit: Int, $offset: Int) {
+			workOrders(states: $states, search: $search, withPriceList: $withPriceList, quote: $quote, limit: $limit, offset: $offset) {
 				totalCount
-				items { id workOrderNumber title state urgencyLevel createdAt ${DEVICE} }
+				items { id workOrderNumber title state urgencyLevel createdAt quoteNumber quoteStatus quoteDraftId ${DEVICE} }
 			}
 		}`,
 		variables,

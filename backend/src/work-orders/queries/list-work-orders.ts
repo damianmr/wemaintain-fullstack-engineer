@@ -1,5 +1,7 @@
-import { ILike, In, Raw } from 'typeorm'
+import { ILike, In, IsNull, Not, Raw } from 'typeorm'
 import { PRICED_DEVICES } from '../../price-lists/queries/priced-devices'
+import { QuoteStatus } from '../../quotes/domain/quote'
+import { DRAFTED_WORK_ORDERS } from '../../quote-drafts/queries/drafted-work-orders'
 import type { Deps } from '../../shared/boilerplate/deps'
 import { WorkOrderState } from '../domain/work-order'
 import { WorkOrderOrmEntity } from '../infrastructure/database/work-order.orm-entity'
@@ -15,8 +17,26 @@ const CLIENT_DEVICES = `SELECT d.id FROM devices.device d
 const deviceIn = (sets: string[], params: Record<string, unknown>) =>
   sets.length ? { deviceId: Raw((column) => sets.map((set) => `${column} IN (${set})`).join(' AND '), params) } : {}
 
+export enum QuoteFilter {
+  NO_QUOTE = 'NO_QUOTE',
+  IN_QUOTE_DRAFT = 'IN_QUOTE_DRAFT',
+  OLD_WAY_DRAFT = 'OLD_WAY_DRAFT',
+  OLD_WAY_PAST_DRAFT = 'OLD_WAY_PAST_DRAFT',
+}
+
+const inDraft = Raw((column) => `${column} IN (${DRAFTED_WORK_ORDERS})`)
+const notInDraft = Raw((column) => `${column} NOT IN (${DRAFTED_WORK_ORDERS})`)
+
+/** Where the work order's quote stands: none yet, in a quote draft, or a Salesforce quote made the old way. */
+const QUOTE_FILTERS = {
+  [QuoteFilter.NO_QUOTE]: { sfQuoteId: IsNull(), id: notInDraft },
+  [QuoteFilter.IN_QUOTE_DRAFT]: { id: inDraft },
+  [QuoteFilter.OLD_WAY_DRAFT]: { quoteStatus: QuoteStatus.DRAFT, id: notInDraft },
+  [QuoteFilter.OLD_WAY_PAST_DRAFT]: { quoteStatus: Not(QuoteStatus.DRAFT), id: notInDraft },
+}
+
 export async function listWorkOrders(
-  input: { limit?: number; offset?: number; states?: WorkOrderState[]; sfQuoteId?: string; buildingId?: string; search?: string; withPriceList?: boolean },
+  input: { limit?: number; offset?: number; states?: WorkOrderState[]; sfQuoteId?: string; buildingId?: string; search?: string; withPriceList?: boolean; quote?: QuoteFilter },
   deps: Pick<Deps, 'db'>,
 ): Promise<{ items: WorkOrderView[]; totalCount: number }> {
   const search = input.search && `%${input.search}%`
@@ -28,6 +48,7 @@ export async function listWorkOrders(
   const filters = {
     ...(input.states?.length && { state: In(input.states) }),
     ...(input.sfQuoteId && { sfQuoteId: input.sfQuoteId }),
+    ...(input.quote && QUOTE_FILTERS[input.quote]),
   }
   const where = search
     ? [

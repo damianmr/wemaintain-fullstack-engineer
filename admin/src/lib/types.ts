@@ -9,6 +9,8 @@ export type WorkOrderState =
 	| 'CANCELLED';
 
 export type QuoteStatus = 'DRAFT' | 'TO_SIGN' | 'VALIDATION' | 'SIGNED' | 'WORKS_IN_PROGRESS' | 'TO_BE_BILLED' | 'BILLED' | 'REFUSED';
+/** Where a work order's quote stands, to filter the list. */
+export type QuoteFilter = 'NO_QUOTE' | 'IN_QUOTE_DRAFT' | 'OLD_WAY_DRAFT' | 'OLD_WAY_PAST_DRAFT';
 
 export type ItemType = 'PART' | 'MAN_HOUR' | 'EXTERNAL_PART' | 'TECH_SUPPORT' | 'INSTALLATION';
 
@@ -74,6 +76,8 @@ export interface WorkOrder {
 	/** Null: the contract has no price list, and the Salesforce quote buttons apply. */
 	contractPricing: ContractPricing | null;
 	quoteDraft: QuoteDraft | null;
+	/** In the list only: the quote draft the work order is in. */
+	quoteDraftId?: string | null;
 }
 
 /** The price list that applies to a work order's contract, if C1 has linked one. */
