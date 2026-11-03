@@ -31,7 +31,7 @@ export const getWorkOrder = (id: string, fetcher?: typeof fetch) =>
 				sfQuoteId sfQuoteLink quoteNumber quoteStatus
 				# Read live from Salesforce by the backend.
 				quote { id reference number status grandTotal currencyISOCode emittedDate description accountName documentAvailable }
-				bundledWorkOrders { id workOrderNumber device { deviceNo } }
+				bundledWorkOrders { id workOrderNumber state device { deviceNo } items { type partId } }
 				${DEVICE}
 				items { id type partId part { id sku name brand averageCost } quantity description comment price sellPrice }
 				${QUOTE_DRAFT}

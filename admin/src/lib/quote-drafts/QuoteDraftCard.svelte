@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { date, money } from '../format.ts';
 	import { itemLabel, MANUAL_REASON } from '../labels.ts';
-	import type { ContractPricing, PriceListRule, QuoteDraft, WorkOrder } from '../types.ts';
+	import type { ContractPricing, Item, PriceListRule, QuoteDraft, WorkOrder, WorkOrderState } from '../types.ts';
 	import Pill from '../ui/Pill.svelte';
 	import { mutate } from '../work-orders/mutate.ts';
 	import AddWorkOrderDialog from './AddWorkOrderDialog.svelte';
@@ -38,6 +38,18 @@
 		if (link) window.open(link, '_blank', 'noopener,noreferrer');
 	}
 
+	// What supply still has to do on a work order, by the rule the backend uses to refuse a send.
+	type Supply = { id: string; workOrderNumber: string; state: WorkOrderState; items: Pick<Item, 'type' | 'partId'>[] };
+	const waitingFor = (wo: Supply) =>
+		wo.items.some((item) => item.type === 'EXTERNAL_PART' && !item.partId)
+			? 'the supply team still has to identify a part (Assign catalogue part, on the work order)'
+			: wo.state === 'PART_TO_ESTIMATE'
+				? 'some items have no cost yet'
+				: null;
+	const waiting = (workOrders: Supply[]) => workOrders.flatMap((wo) => (waitingFor(wo) ? [{ wo, reason: waitingFor(wo) }] : []));
+	// Adopting brings in every work order of the quote: say before adopting which ones will hold back the send.
+	const adoptWaiting = $derived(adoptable ? waiting([workOrder, ...workOrder.bundledWorkOrders]) : []);
+
 	// Two lines can cover the same item, even with the same code: a standby hour split over two time bands.
 	const coveredBy = (itemId: string) => draft?.lines.filter((line) => line.coverage.some((c) => c.itemId === itemId)) ?? [];
 </script>
@@ -57,6 +69,12 @@
 				<li>keep its current lines, to review</li>
 				<li>add lines from the contract list</li>
 			</ul>
+			{#if adoptWaiting.length}
+				<div class="alert warning">
+					{#each adoptWaiting as { wo, reason } (wo.id)}<div><a href="/work-orders/details/{wo.workOrderNumber}">{wo.workOrderNumber}</a>: {reason}.</div>{/each}
+					<div>You can adopt it and add lines now. Sending waits until this is done.</div>
+				</div>
+			{/if}
 		{:else if !draft && workOrder.sfQuoteId}
 			<p class="grey">The Salesforce quote is past Draft, so it can't be priced here. Move it back to Draft in Salesforce to change it.</p>
 		{:else if !draft}
@@ -133,7 +151,18 @@
 			<div class="total">Total before tax: <strong>{money(draft.total, currency)}</strong></div>
 
 			{#if draft.editable && draft.sendBlockers.length}
-				<div class="alert warning">{#each draft.sendBlockers as blocker (blocker)}<div>{blocker}</div>{/each}</div>
+				{@const parts = waiting(draft.workOrders)}
+				<div class="alert warning">
+					<strong>Can't send yet</strong>
+					<ul class="steps">
+						{#if !draft.lines.length}<li>Add at least one line.</li>{/if}
+						{#each parts as { wo, reason } (wo.id)}
+							<li><a href="/work-orders/details/{wo.workOrderNumber}">{wo.workOrderNumber}</a>: {reason}.</li>
+						{/each}
+						{#if draft.lines.length && !parts.length}{#each draft.sendBlockers as blocker (blocker)}<li>{blocker}</li>{/each}{/if}
+					</ul>
+					{#if parts.length}<div>You can keep working on the lines meanwhile.</div>{/if}
+				</div>
 			{/if}
 		{/if}
 	</div>

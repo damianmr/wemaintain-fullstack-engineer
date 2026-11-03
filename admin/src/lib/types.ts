@@ -70,7 +70,7 @@ export interface WorkOrder {
 	quoteNumber: string | null;
 	quoteStatus: QuoteStatus | null;
 	quote: Quote | null;
-	bundledWorkOrders: { id: string; workOrderNumber: string; device: { deviceNo: string } | null }[];
+	bundledWorkOrders: { id: string; workOrderNumber: string; state: WorkOrderState; device: { deviceNo: string } | null; items: Pick<Item, 'type' | 'partId'>[] }[];
 	device: Device | null;
 	items: Item[];
 	/** Null: the contract has no price list, and the Salesforce quote buttons apply. */
