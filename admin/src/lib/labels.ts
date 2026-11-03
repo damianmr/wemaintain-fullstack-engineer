@@ -37,7 +37,7 @@ export function quoteStatusPill(status: QuoteStatus | null | undefined, items: I
 export const QUOTE_FILTER: Record<QuoteFilter, string> = {
 	NO_QUOTE: 'No quote yet',
 	IN_QUOTE_DRAFT: 'Priced with the contract list',
-	OLD_WAY_DRAFT: 'Old quote, can be adopted',
+	OLD_WAY_DRAFT: 'Old quote, can be imported',
 	OLD_WAY_PAST_DRAFT: 'Old quote, already sent'
 };
 
@@ -56,7 +56,7 @@ export const PAGE_SIZE = 30;
 export const itemLabel = (item: Item) =>
 	(item.type === 'PART' ? item.part?.name : item.type === 'EXTERNAL_PART' ? item.description : item.type === 'MAN_HOUR' ? 'Labour (hours)' : 'Installation') ?? '';
 
-/** Why a line does not take its price from the contract list. IMPORTED is set by adopting a quote, not picked. */
+/** Why a line does not take its price from the contract list. IMPORTED is set by importing an old quote, not picked. */
 export const MANUAL_REASON: Record<ManualReason, string> = {
 	PART_NOT_ON_LIST: 'Part not on the list',
 	SUBCONTRACTED_WORK: 'Subcontracted work',

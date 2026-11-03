@@ -83,7 +83,7 @@ match it back.
   contract, North Gem and Ardmoor (other prices for item 38), Lindenhome PM
   (its earlier list is not supplied).
 - Existing quotes past Draft stay as they are. An old-way Draft quote can be
-  **adopted**: its work orders join a draft, its lines come in as manual lines
+  **imported**: its work orders join a draft, its lines come in as manual lines
   to review, and sending updates the same quote.
 - The roadmap counts a line when its final sent price is the list price. When
   a quote moves to Presented, the backend reads its lines and records how many
@@ -157,7 +157,7 @@ try.
 | --- | --- | --- |
 | 1 to 2 | Card on fake data, reviewed with a CSM from each country | The flow and the line wording are agreed |
 | 3 to 5 | Lists imported, contracts linked, drafts saved | A CSM builds a draft on real work orders; prices come from the list |
-| 6 to 8 | Send, update, return to Draft, adoption | A draft becomes a correct Salesforce quote for both clients |
+| 6 to 8 | Send, update, return to Draft, import of old quotes | A draft becomes a correct Salesforce quote for both clients |
 | 9 to 10 | Measurement, rollout on the six contracts, write-up | The first presented quotes are measured |
 
 The one outside dependency is Salesforce, in two parts:
@@ -202,13 +202,13 @@ the apps. Everything done in a session is gone at the next start.
 The work-order list helps to find examples. It searches by client name, and
 filters by quote, to "Only contracts with a price list" and to "Only
 chargeable". On Ongoing, with both boxes ticked, "No quote yet" shows the 20
-work orders where a CSM would start a draft, and "Old quote, can be adopted"
+work orders where a CSM would start a draft, and "Old quote, can be imported"
 the 6 Draft quotes made before C1.
 
 - Lindenhome, several buildings: open R26-15442, start a draft, add R26-15155,
   add 0435AS and a manual line from rule 0097AS, send.
 - Meridian, time bands: open R26-11241, add SOR item 65 after office hours x 8.
-- Adoption: open R26-13309 (quote 00032043, no lines yet), adopt it, add 0320AS
+- Import: open R26-13309 (quote 00032043, no lines yet), import it, add 0320AS
   for the electrocam of R26-15307. Send waits for the supply team: on R26-15307,
   assign a catalogue part to the electrocam, then update the quote.
 - Measurement: move a sent quote to Presented in the toy Salesforce, and the
@@ -219,4 +219,4 @@ the 6 Draft quotes made before C1.
 The commits tell the story: the queries behind the analysis, the card on fake
 data (contract lines, manual lines, several work orders), then the tables the
 screen proved (price lists, contract links, drafts), then Salesforce (send,
-return to Draft, adoption, measurement).
+return to Draft, import of old quotes, measurement).

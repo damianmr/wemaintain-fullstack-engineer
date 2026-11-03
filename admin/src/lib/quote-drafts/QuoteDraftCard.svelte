@@ -24,7 +24,7 @@
 	}
 
 	const currency = $derived(draft?.currency ?? pricing.priceList.currency);
-	// A quote made the old way: still Draft, it can be adopted; past Draft, it stays as it is.
+	// A quote made the old way: still Draft, it can be imported; past Draft, it stays as it is.
 	const adoptable = $derived(!!workOrder.sfQuoteId && workOrder.quoteStatus === 'DRAFT');
 	// A work order the contract covers needs no quote, so the card offers nothing.
 	const canStart = $derived(!draft && workOrder.isChargeable && (adoptable || !workOrder.sfQuoteId));
@@ -60,7 +60,7 @@
 				? 'some items have no cost yet'
 				: null;
 	const waiting = (workOrders: Supply[]) => workOrders.flatMap((wo) => (waitingFor(wo) ? [{ wo, reason: waitingFor(wo) }] : []));
-	// Adopting brings in every work order of the quote: say before adopting which ones will hold back the send.
+	// Importing brings in every work order of the quote: say before importing which ones will hold back the send.
 	const adoptWaiting = $derived(adoptable ? waiting([workOrder, ...workOrder.bundledWorkOrders]) : []);
 
 	// Two lines can cover the same item, even with the same code: a standby hour split over two time bands.
@@ -84,16 +84,17 @@
 		{#if !draft && !workOrder.isChargeable}
 			<p class="grey">This work order is not chargeable.</p>
 		{:else if !draft && adoptable}
-			<p>This work order already has a Salesforce quote in Draft. Adopt it to:</p>
+			<p>This work order already has a Salesforce quote in Draft. Import it to:</p>
 			<ul class="steps">
 				<li>bring in the quote's other work orders</li>
 				<li>keep its current lines, to review</li>
 				<li>add lines from the contract list</li>
+				<li>update the same Salesforce quote afterwards</li>
 			</ul>
 			{#if adoptWaiting.length}
 				<div class="alert warning">
 					{#each adoptWaiting as { wo, reason } (wo.id)}<div><span class="icon" aria-hidden="true">⚠︎</span><a href="/work-orders/details/{wo.workOrderNumber}">{wo.workOrderNumber}</a>: {reason}.</div>{/each}
-					<div class="hint">You can adopt it and add lines now. Sending waits until this is done.</div>
+					<div class="hint">You can import it and add lines now. Sending waits until this is done.</div>
 				</div>
 			{/if}
 		{:else if !draft && workOrder.sfQuoteId}
@@ -204,7 +205,7 @@
 	{#if (canStart && adoptable) || draft?.editable}
 		<footer>
 			{#if !draft && adoptable}
-				<button class="primary" onclick={() => mutate(() => adoptQuote(workOrder), 'Quote adopted into a draft')}>Adopt this quote</button>
+				<button class="primary" onclick={() => mutate(() => adoptQuote(workOrder), 'Quote imported')}>Import this quote</button>
 			{:else if draft?.editable}
 				<button onclick={() => (addingContractLine = true)}>+ Add from contract list</button>
 				<button onclick={() => addManualLine()}>+ Add manual line</button>
