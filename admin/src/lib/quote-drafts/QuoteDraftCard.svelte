@@ -105,7 +105,17 @@
 				</p>
 			{/if}
 		{:else if !draft}
-			<p class="grey">No quote yet.</p>
+			<div class="empty">
+				<div class="empty-icon" aria-hidden="true">
+					<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+						<path d="M14 3v5h5M9 13h6M9 17h4" />
+					</svg>
+				</div>
+				<strong>No quote yet</strong>
+				<span class="grey">Price this work order from the {pricing.priceList.name} list.</span>
+				<button class="primary" onclick={() => mutate(() => startDraft(workOrder), 'Quote draft started')}>Start draft</button>
+			</div>
 		{:else}
 			{#if draft.sfQuoteId && !draft.editable}
 				<div class="alert">The quote is past Draft in Salesforce, so this draft is closed.</div>
@@ -191,12 +201,10 @@
 			{/if}
 		{/if}
 	</div>
-	{#if canStart || draft?.editable}
+	{#if (canStart && adoptable) || draft?.editable}
 		<footer>
 			{#if !draft && adoptable}
 				<button class="primary" onclick={() => mutate(() => adoptQuote(workOrder), 'Quote adopted into a draft')}>Adopt this quote</button>
-			{:else if !draft}
-				<button class="primary" onclick={() => mutate(() => startDraft(workOrder), 'Quote draft started')}>Start draft</button>
 			{:else if draft?.editable}
 				<button onclick={() => (addingContractLine = true)}>+ Add from contract list</button>
 				<button onclick={() => addManualLine()}>+ Add manual line</button>
@@ -227,6 +235,31 @@
 	}
 	.summary .price {
 		margin-left: auto;
+	}
+	/* No quote yet: centred, with the one action in the middle. */
+	.empty {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 6px;
+		padding: 24px 16px 20px;
+		text-align: center;
+	}
+	.empty-icon {
+		display: grid;
+		place-items: center;
+		width: 52px;
+		height: 52px;
+		margin-bottom: 6px;
+		border-radius: 50%;
+		background: #eef4ff;
+		color: #3d63dd;
+	}
+	.empty strong {
+		font-size: 15px;
+	}
+	.empty button {
+		margin-top: 12px;
 	}
 	p {
 		margin: 0 0 10px;
