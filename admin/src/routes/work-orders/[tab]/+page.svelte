@@ -13,7 +13,7 @@
 <h1>Work orders</h1>
 
 <form class="search" method="GET">
-	<input name="search" value={data.search} placeholder="Search by number or title" />
+	<input name="search" value={data.search} placeholder="Search by number, title or client" />
 </form>
 
 <nav class="tabs">
