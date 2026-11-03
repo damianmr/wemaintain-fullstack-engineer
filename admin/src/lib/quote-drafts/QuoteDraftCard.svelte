@@ -12,6 +12,7 @@
 	let { workOrder, pricing, draft }: { workOrder: WorkOrder; pricing: ContractPricing; draft: QuoteDraft | null } = $props();
 
 	let addingWorkOrders = $state(false);
+	let removing = $state(false);
 	let sending = $state(false);
 	let addingContractLine = $state(false);
 	let addingManualLine = $state(false);
@@ -27,6 +28,13 @@
 	const adoptable = $derived(!!workOrder.sfQuoteId && workOrder.quoteStatus === 'DRAFT');
 	// A work order the contract covers needs no quote, so the card offers nothing.
 	const canStart = $derived(!draft && workOrder.isChargeable && (adoptable || !workOrder.sfQuoteId));
+
+	// One removal at a time: the rows move up when one goes, so a second click would hit the next work order.
+	async function remove(draftId: string, workOrderId: string) {
+		removing = true;
+		await mutate(() => removeWorkOrder(draftId, workOrderId), 'Work order removed from the draft');
+		removing = false;
+	}
 
 	async function send(draftId: string) {
 		sending = true;
@@ -106,8 +114,9 @@
 						<a href="/work-orders/details/{wo.workOrderNumber}">{wo.workOrderNumber}</a>
 						<span class="grey">{wo.deviceNo} · {wo.buildingName}</span>
 						{#if wo.id === workOrder.id}<span class="grey">(this one)</span>{/if}
-						{#if draft.editable && !draft.sfQuoteId && draft.workOrders.length > 1}
-							<button class="link" aria-label="Remove {wo.workOrderNumber} from the draft" onclick={() => mutate(() => removeWorkOrder(draft.id, wo.id), 'Work order removed from the draft')}>✕</button>
+						<!-- Not the one on screen: removing it would take this page out of the draft, and the whole draft would seem gone. -->
+						{#if draft.editable && !draft.sfQuoteId && wo.id !== workOrder.id}
+							<button class="link" aria-label="Remove {wo.workOrderNumber} from the draft" disabled={removing} onclick={() => remove(draft.id, wo.id)}>✕</button>
 						{/if}
 					</div>
 					<ul>
