@@ -7,7 +7,7 @@
 
 	let { data }: PageProps = $props();
 	const pages = $derived(Math.max(1, Math.ceil(data.totalCount / PAGE_SIZE)));
-	/** The list's filters as URL parameters, kept across tabs and pages. */
+	/** The list's filters as URL parameters, kept across tabs and pages. The state belongs to its tab, so pages keep it and tabs do not. */
 	const query = (extra: Record<string, string> = {}) => {
 		const params = new URLSearchParams({ ...(data.search && { search: data.search }), ...(data.withPriceList && { priced: '1' }), ...extra });
 		return params.size ? `?${params}` : '';
@@ -18,6 +18,14 @@
 
 <form class="filters" method="GET">
 	<input name="search" value={data.search} placeholder="Search by number, title or client" />
+	{#if TABS[data.tab].length > 1}
+		<select name="state" value={data.state ?? ''} onchange={(e) => e.currentTarget.form?.requestSubmit()}>
+			<option value="">All states</option>
+			{#each TABS[data.tab] as state (state)}
+				<option value={state}>{STATE[state][0]}</option>
+			{/each}
+		</select>
+	{/if}
 	<label>
 		<input type="checkbox" name="priced" value="1" checked={data.withPriceList} onchange={(e) => e.currentTarget.form?.requestSubmit()} />
 		Only contracts with a price list
@@ -59,9 +67,9 @@
 	<footer>
 		<span class="grey">{data.totalCount} work orders</span>
 		<span class="pager">
-			{#if data.page > 1}<a href={query({ page: String(data.page - 1) })}>‹ Previous</a>{/if}
+			{#if data.page > 1}<a href={query({ ...(data.state && { state: data.state }), page: String(data.page - 1) })}>‹ Previous</a>{/if}
 			<span>Page {data.page} / {pages}</span>
-			{#if data.page < pages}<a href={query({ page: String(data.page + 1) })}>Next ›</a>{/if}
+			{#if data.page < pages}<a href={query({ ...(data.state && { state: data.state }), page: String(data.page + 1) })}>Next ›</a>{/if}
 		</span>
 	</footer>
 </div>
@@ -84,6 +92,7 @@
 		display: flex;
 		gap: 6px;
 		align-items: center;
+		white-space: nowrap;
 	}
 	.tabs {
 		display: flex;
