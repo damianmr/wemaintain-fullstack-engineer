@@ -93,7 +93,7 @@
 			{#if adoptWaiting.length}
 				<div class="alert warning">
 					{#each adoptWaiting as { wo, reason } (wo.id)}<div><span class="icon" aria-hidden="true">⚠︎</span><a href="/work-orders/details/{wo.workOrderNumber}">{wo.workOrderNumber}</a>: {reason}.</div>{/each}
-					<div>You can adopt it and add lines now. Sending waits until this is done.</div>
+					<div class="hint">You can adopt it and add lines now. Sending waits until this is done.</div>
 				</div>
 			{/if}
 		{:else if !draft && workOrder.sfQuoteId}
@@ -149,7 +149,7 @@
 				</div>
 			{/each}
 
-			{#if draft.editable}<button class="link" onclick={() => (addingWorkOrders = true)}>+ Add work order</button>{/if}
+			{#if draft.editable}<button class="link add-work-order" onclick={() => (addingWorkOrders = true)}>+ Add work order</button>{/if}
 
 			<h2>Lines</h2>
 			{#each draft.lines as line (line.id)}
@@ -186,7 +186,7 @@
 						{/each}
 						{#if draft.lines.length && !parts.length}{#each draft.sendBlockers as blocker (blocker)}<li>{blocker}</li>{/each}{/if}
 					</ul>
-					{#if parts.length}<div>You can keep working on the lines meanwhile.</div>{/if}
+					{#if parts.length}<div class="hint">You can keep working on the lines meanwhile.</div>{/if}
 				</div>
 			{/if}
 		{/if}
@@ -215,21 +215,40 @@
 {/if}
 
 <style>
+	/* Room between the parts of the card, so each one reads on its own. */
 	.summary {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 8px;
-		padding-bottom: 12px;
-		margin-bottom: 12px;
+		gap: 10px;
+		padding-bottom: 16px;
+		margin-bottom: 20px;
 		border-bottom: 1px solid #eceef3;
 	}
 	.summary .price {
 		margin-left: auto;
 	}
+	p {
+		margin: 0 0 10px;
+		line-height: 1.5;
+	}
+	.alert {
+		margin: 20px 0;
+		padding: 12px 14px;
+		line-height: 1.5;
+	}
+	.alert > div + div {
+		margin-top: 6px;
+	}
+	.alert .steps {
+		margin: 8px 0 0;
+	}
+	.alert .hint {
+		margin-top: 10px;
+	}
 	h2 {
 		font-size: 14px;
-		margin: 16px 0 8px;
+		margin: 28px 0 10px;
 	}
 	h2:first-child {
 		margin-top: 0;
@@ -239,14 +258,14 @@
 		color: #9a6700;
 	}
 	.steps {
-		margin: 6px 0 0;
-		padding-left: 20px;
+		margin: 8px 0 16px;
+		padding-left: 22px;
 	}
 	.steps li {
-		padding: 2px 0;
+		padding: 3px 0;
 	}
 	.work-order {
-		padding: 8px 10px;
+		padding: 12px 12px;
 		border-bottom: 1px solid #eceef3;
 		border-left: 3px solid transparent;
 	}
@@ -257,8 +276,8 @@
 		border-radius: 4px;
 	}
 	.this-one {
-		margin-left: 6px;
-		padding: 1px 8px;
+		margin-left: 8px;
+		padding: 2px 9px;
 		border-radius: 999px;
 		background: #3d63dd;
 		color: #fff;
@@ -266,35 +285,43 @@
 		font-weight: 500;
 	}
 	.work-order ul {
-		margin: 6px 0 0;
-		padding-left: 18px;
+		margin: 8px 0 0;
+		padding-left: 20px;
 	}
 	.work-order li {
-		padding: 2px 0;
+		padding: 3px 0;
+	}
+	.work-order li :global(.pill) {
+		margin-left: 6px;
+	}
+	.add-work-order {
+		display: inline-block;
+		margin-top: 14px;
 	}
 	.line {
 		display: flex;
-		gap: 12px;
+		gap: 16px;
 		align-items: flex-start;
-		padding: 8px 0;
+		padding: 14px 0;
 		border-bottom: 1px solid #eceef3;
 	}
 	.line .main {
 		flex: 1;
 		display: flex;
 		flex-direction: column;
-		gap: 4px;
+		gap: 6px;
 		align-items: flex-start;
 	}
 	.amount {
 		display: flex;
 		flex-direction: column;
 		align-items: flex-end;
+		gap: 4px;
 		white-space: nowrap;
 	}
 	.total {
 		text-align: right;
-		margin: 12px 0;
+		margin: 16px 0 4px;
 	}
 	footer {
 		align-items: center;
