@@ -48,7 +48,7 @@
 				{#if workOrder.sfQuoteId}
 					<a href={workOrder.sfQuoteLink} target="_blank" rel="noopener noreferrer">↗ {quote?.number ?? workOrder.quoteNumber}</a>
 				{:else if workOrder.isChargeable && pricing}
-					<span class="grey">Built from the contract price list, in the quote draft below</span>
+					<span class="grey">See the quote draft below</span>
 				{:else if workOrder.isChargeable}
 					<button class="primary" disabled={workOrder.state === 'PART_TO_ESTIMATE' || awaitingSupply > 0 || generating} onclick={generateQuote}>
 						{generating ? 'Generating…' : 'Generate quote on Salesforce'}
