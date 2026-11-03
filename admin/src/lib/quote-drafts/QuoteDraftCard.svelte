@@ -81,8 +81,19 @@
 				{#if workOrder.quote}<strong class="price">{money(workOrder.quote.grandTotal, workOrder.quote.currencyISOCode)}</strong>{/if}
 			</div>
 		{/if}
+		{#snippet emptyIcon(paths: string[])}
+			<div class="empty-icon" aria-hidden="true">
+				<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+					{#each paths as d (d)}<path {d} />{/each}
+				</svg>
+			</div>
+		{/snippet}
 		{#if !draft && !workOrder.isChargeable}
-			<p class="grey">This work order is not chargeable.</p>
+			<div class="empty">
+				{@render emptyIcon(['M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z', 'M9 12l2 2 4-4'])}
+				<strong>Not chargeable</strong>
+				<span class="grey">This work order needs no quote.</span>
+			</div>
 		{:else if !draft && adoptable}
 			<p>This work order already has a Salesforce quote in Draft. Import it to:</p>
 			<ul class="steps">
@@ -98,21 +109,22 @@
 				</div>
 			{/if}
 		{:else if !draft && workOrder.sfQuoteId}
-			<p class="grey">The Salesforce quote is past Draft, so it can't be priced here. Move it back to Draft in Salesforce to change it.</p>
-			{#if workOrder.bundledWorkOrders.length}
-				<p class="grey">
-					Also on this quote:
-					{#each workOrder.bundledWorkOrders as other, i (other.id)}{i ? ', ' : ''}<a href="/work-orders/details/{other.workOrderNumber}">{other.workOrderNumber}</a>{/each}
-				</p>
-			{/if}
+			<div class="empty">
+				{@render emptyIcon(['M22 2L11 13', 'M22 2l-7 20-4-9-9-4z'])}
+				<strong>Quote past Draft</strong>
+				<span class="grey">It can't be priced from the contract list here.</span>
+				{#if workOrder.bundledWorkOrders.length}
+					<div class="also">
+						<span class="grey">Also on this quote</span>
+						<div class="chips">
+							{#each workOrder.bundledWorkOrders as other (other.id)}<a class="chip" href="/work-orders/details/{other.workOrderNumber}">{other.workOrderNumber}</a>{/each}
+						</div>
+					</div>
+				{/if}
+			</div>
 		{:else if !draft}
 			<div class="empty">
-				<div class="empty-icon" aria-hidden="true">
-					<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-						<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
-						<path d="M14 3v5h5M9 13h6M9 17h4" />
-					</svg>
-				</div>
+				{@render emptyIcon(['M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z', 'M14 3v5h5M9 13h6M9 17h4'])}
 				<strong>No quote yet</strong>
 				<span class="grey">Price this work order from the {pricing.priceList.name} list.</span>
 				<button class="primary" onclick={() => mutate(() => startDraft(workOrder), 'Quote draft started')}>Start draft</button>
@@ -261,6 +273,30 @@
 	}
 	.empty button {
 		margin-top: 12px;
+	}
+	.also {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+		margin-top: 14px;
+	}
+	.chips {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 6px;
+	}
+	.chip {
+		padding: 3px 10px;
+		border: 1px solid #d9e2f7;
+		border-radius: 999px;
+		background: #f5f8ff;
+		font-size: 13px;
+		text-decoration: none;
+	}
+	.chip:hover {
+		background: #e8efff;
 	}
 	p {
 		margin: 0 0 10px;
