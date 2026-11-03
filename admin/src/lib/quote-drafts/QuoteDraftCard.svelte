@@ -79,7 +79,7 @@
 			</ul>
 			{#if adoptWaiting.length}
 				<div class="alert warning">
-					{#each adoptWaiting as { wo, reason } (wo.id)}<div><a href="/work-orders/details/{wo.workOrderNumber}">{wo.workOrderNumber}</a>: {reason}.</div>{/each}
+					{#each adoptWaiting as { wo, reason } (wo.id)}<div><span class="icon" aria-hidden="true">⚠︎</span><a href="/work-orders/details/{wo.workOrderNumber}">{wo.workOrderNumber}</a>: {reason}.</div>{/each}
 					<div>You can adopt it and add lines now. Sending waits until this is done.</div>
 				</div>
 			{/if}
@@ -93,7 +93,7 @@
 					Salesforce quote <a href={draft.sfQuoteLink} target="_blank" rel="noopener noreferrer">↗ {draft.quoteNumber ?? draft.sfQuoteId}</a>
 				</p>
 				{#if draft.editable}
-					<div class="alert">Updating the quote replaces its lines with these.</div>
+					<div class="alert warning"><span class="icon" aria-hidden="true">⚠︎</span>Updating the quote replaces its lines with these.</div>
 				{:else}
 					<div class="alert">The quote is past Draft in Salesforce, so this draft is closed.</div>
 				{/if}
@@ -162,7 +162,7 @@
 			{#if draft.editable && draft.sendBlockers.length}
 				{@const parts = waiting(draft.workOrders)}
 				<div class="alert warning">
-					<strong>Can't send yet</strong>
+					<strong><span class="icon" aria-hidden="true">⚠︎</span>Can't send yet</strong>
 					<ul class="steps">
 						{#if !draft.lines.length}<li>Add at least one line.</li>{/if}
 						{#each parts as { wo, reason } (wo.id)}
@@ -205,6 +205,10 @@
 	}
 	h2:first-child {
 		margin-top: 0;
+	}
+	.icon {
+		margin-right: 6px;
+		color: #9a6700;
 	}
 	.steps {
 		margin: 6px 0 0;
