@@ -38,6 +38,7 @@ export async function getQuoteDraftForWorkOrder(input: { workOrderId: string }, 
     status: draft.status,
     editable: draft.isEditable(quoteStatus),
     sendBlockers: draft.sendBlockers(draftWorkOrders),
+    unsentChanges: draft.hasUnsentChanges(draftWorkOrders),
     sfQuoteId: draft.sfQuoteId ?? null,
     quoteNumber: quote?.number ?? null,
     workOrders: draft.workOrderIds.map((id) => {

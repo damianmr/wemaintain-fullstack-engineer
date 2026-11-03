@@ -238,6 +238,20 @@ export class QuoteDraft {
     ]
   }
 
+  /**
+   * After a send, whether Salesforce is behind the draft: lines added or removed since, or a work order that joined
+   * since and is not on the quote yet. An adopted draft that was never sent counts as changed: its lines came from
+   * the old quote and carry no line id.
+   */
+  hasUnsentChanges(workOrders: Pick<DraftWorkOrder, 'id' | 'sfQuoteId'>[]): boolean {
+    if (!this.sfQuoteId) return false
+    const sent = new Map(this.sentLines.map((line) => [line.id, line]))
+    const linesChanged =
+      this.lines.length !== this.sentLines.length ||
+      this.lines.some((line) => sent.get(line.id)?.quantity !== line.quantity || sent.get(line.id)?.unitPrice !== line.unitPrice)
+    return linesChanged || workOrders.some((wo) => this.workOrderIds.includes(wo.id) && wo.sfQuoteId !== this.sfQuoteId)
+  }
+
   markSent(sfQuoteId: string): void {
     this.status = DraftStatus.SENT
     this.sfQuoteId = sfQuoteId

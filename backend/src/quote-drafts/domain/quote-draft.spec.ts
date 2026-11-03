@@ -109,6 +109,25 @@ describe('QuoteDraft', () => {
     expect(() => draft.assertEditable(QuoteStatus.TO_SIGN)).toThrow(DraftNotEditableError)
   })
 
+  it('knows when Salesforce is behind the draft after a send', () => {
+    const draft = newDraft()
+    draft.addManualLine({ customerText: 'Labour', quantity: 1, unitPrice: 103.72, reason: ManualReason.OTHER })
+    expect(draft.hasUnsentChanges([workOrder()])).toBe(false)
+    draft.markSent('0Q0X')
+    const onQuote = workOrder({ sfQuoteId: '0Q0X' })
+    expect(draft.hasUnsentChanges([onQuote])).toBe(false)
+
+    draft.addContractLine({ rate: remoteAlarm, quantity: 1, coverage: [] }, [onQuote])
+    expect(draft.hasUnsentChanges([onQuote])).toBe(true)
+    draft.markSent('0Q0X')
+    expect(draft.hasUnsentChanges([onQuote])).toBe(false)
+
+    // A work order that joined after the send is not on the quote until the next one.
+    const joined = workOrder({ id: 'wo-2', workOrderNumber: 'R26-15436' })
+    draft.addWorkOrder(joined)
+    expect(draft.hasUnsentChanges([onQuote, joined])).toBe(true)
+  })
+
   it('lets a work order leave before the first send, taking its coverage with it', () => {
     const second = workOrder({ id: 'wo-2', workOrderNumber: 'R26-15436', items: [{ id: 'pack-2', quantity: 1 }] })
     const draft = newDraft()
