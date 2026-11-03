@@ -25,6 +25,8 @@
 	const currency = $derived(draft?.currency ?? pricing.priceList.currency);
 	// A quote made the old way: still Draft, it can be adopted; past Draft, it stays as it is.
 	const adoptable = $derived(!!workOrder.sfQuoteId && workOrder.quoteStatus === 'DRAFT');
+	// A work order the contract covers needs no quote, so the card offers nothing.
+	const canStart = $derived(!draft && workOrder.isChargeable && (adoptable || !workOrder.sfQuoteId));
 
 	async function send(draftId: string) {
 		sending = true;
@@ -46,28 +48,28 @@
 		<span class="grey">{pricing.priceList.name} · Contract {pricing.contractNo} · {currency}</span>
 	</header>
 	<div class="body">
-		{#if !draft && adoptable}
-			<p>
-				This work order is on Salesforce quote {workOrder.quoteNumber ?? workOrder.sfQuoteId}, made before the contract list was here, and still
-				Draft. Adopt it to price it from the list: its work orders join a draft, and its lines come in as manual lines to review.
-			</p>
+		{#if !draft && !workOrder.isChargeable}
+			<p class="grey">This work order is not chargeable.</p>
+		{:else if !draft && adoptable}
+			<p>This work order already has a Salesforce quote in Draft. Adopt it to:</p>
+			<ul class="steps">
+				<li>bring in the quote's other work orders</li>
+				<li>keep its current lines, to review</li>
+				<li>add lines from the contract list</li>
+			</ul>
 		{:else if !draft && workOrder.sfQuoteId}
-			<p class="grey">This work order is on a Salesforce quote that has left Draft. It stays as it is.</p>
+			<p class="grey">The Salesforce quote is past Draft, so it can't be priced here. Move it back to Draft in Salesforce to change it.</p>
 		{:else if !draft}
-			<p>
-				This contract has a price list. Build the quote here: contract lines take the agreed price from the list. Nothing goes to Salesforce
-				until you send the draft.
-			</p>
-			{#if !workOrder.isChargeable}<p class="grey">This work order is not chargeable: no quote needed.</p>{/if}
+			<p class="grey">No quote yet.</p>
 		{:else}
 			{#if draft.sfQuoteLink}
 				<p>
 					Salesforce quote <a href={draft.sfQuoteLink} target="_blank" rel="noopener noreferrer">↗ {draft.quoteNumber ?? draft.sfQuoteId}</a>
 				</p>
 				{#if draft.editable}
-					<div class="alert">The quote is still Draft. Updating it replaces its lines with these; lines edited directly in Salesforce are lost.</div>
+					<div class="alert">Updating the quote replaces its lines with these.</div>
 				{:else}
-					<div class="alert">The quote has left Draft in Salesforce: this draft can no longer change.</div>
+					<div class="alert">The quote is past Draft in Salesforce, so this draft is closed.</div>
 				{/if}
 			{/if}
 			{#each draft.observations.slice(0, 1) as seen (seen.observedAt)}
@@ -135,19 +137,21 @@
 			{/if}
 		{/if}
 	</div>
-	<footer>
-		{#if !draft && adoptable}
-			<button class="primary" onclick={() => mutate(() => adoptQuote(workOrder), 'Quote adopted into a draft')}>Adopt this quote</button>
-		{:else if !draft && !workOrder.sfQuoteId}
-			<button class="primary" disabled={!workOrder.isChargeable} onclick={() => mutate(() => startDraft(workOrder), 'Quote draft started')}>Start draft</button>
-		{:else if draft?.editable}
-			<button onclick={() => (addingContractLine = true)}>+ Add from contract list</button>
-			<button onclick={() => addManualLine()}>+ Add manual line</button>
-			<button class="primary" disabled={draft.sendBlockers.length > 0 || sending} onclick={() => draft && send(draft.id)}>
-				{sending ? 'Sending…' : draft.sfQuoteId ? 'Update the Salesforce quote' : 'Send to Salesforce'}
-			</button>
-		{/if}
-	</footer>
+	{#if canStart || draft?.editable}
+		<footer>
+			{#if !draft && adoptable}
+				<button class="primary" onclick={() => mutate(() => adoptQuote(workOrder), 'Quote adopted into a draft')}>Adopt this quote</button>
+			{:else if !draft}
+				<button class="primary" onclick={() => mutate(() => startDraft(workOrder), 'Quote draft started')}>Start draft</button>
+			{:else if draft?.editable}
+				<button onclick={() => (addingContractLine = true)}>+ Add from contract list</button>
+				<button onclick={() => addManualLine()}>+ Add manual line</button>
+				<button class="primary" disabled={draft.sendBlockers.length > 0 || sending} onclick={() => draft && send(draft.id)}>
+					{sending ? 'Sending…' : draft.sfQuoteId ? 'Update the Salesforce quote' : 'Send to Salesforce'}
+				</button>
+			{/if}
+		</footer>
+	{/if}
 </div>
 
 {#if draft}
@@ -163,6 +167,13 @@
 	}
 	h2:first-child {
 		margin-top: 0;
+	}
+	.steps {
+		margin: 6px 0 0;
+		padding-left: 20px;
+	}
+	.steps li {
+		padding: 2px 0;
 	}
 	.work-order {
 		padding: 8px 0;
