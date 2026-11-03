@@ -18,14 +18,19 @@
 
 <form class="filters" method="GET">
 	<input name="search" value={data.search} placeholder="Search by number, title or client" />
-	<label>
-		<input type="checkbox" name="priced" value="1" checked={data.withPriceList} onchange={(e) => e.currentTarget.form?.requestSubmit()} />
-		Only contracts with a price list
-	</label>
-	<label>
-		<input type="checkbox" name="chargeable" value="1" checked={data.chargeable} onchange={(e) => e.currentTarget.form?.requestSubmit()} />
-		Only chargeable
-	</label>
+	<div class="toggles" role="group" aria-labelledby="filters-label">
+		<span id="filters-label" class="toggles-label">Filters</span>
+		<label class="toggle">
+			<input type="checkbox" role="switch" name="priced" value="1" checked={data.withPriceList} onchange={(e) => e.currentTarget.form?.requestSubmit()} />
+			<span class="track" aria-hidden="true"></span>
+			Has a price list
+		</label>
+		<label class="toggle">
+			<input type="checkbox" role="switch" name="chargeable" value="1" checked={data.chargeable} onchange={(e) => e.currentTarget.form?.requestSubmit()} />
+			<span class="track" aria-hidden="true"></span>
+			Chargeable
+		</label>
+	</div>
 </form>
 
 <nav class="tabs">
@@ -94,11 +99,65 @@
 	.filters input[name='search'] {
 		width: 320px;
 	}
-	.filters label {
+	/* The filters as switches in one white pill, next to the search. */
+	.toggles {
 		display: flex;
-		gap: 6px;
 		align-items: center;
+		gap: 18px;
+		padding: 7px 14px;
+		border: 1px solid #e3e6ec;
+		border-radius: 999px;
+		background: white;
+	}
+	.toggles-label {
+		font-size: 12px;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: #6b7385;
+	}
+	.toggle {
+		display: flex;
+		align-items: center;
+		gap: 8px;
 		white-space: nowrap;
+		cursor: pointer;
+	}
+	.toggle input {
+		position: absolute;
+		opacity: 0;
+		width: 1px;
+		height: 1px;
+	}
+	.track {
+		position: relative;
+		width: 32px;
+		height: 18px;
+		border-radius: 999px;
+		background: #cdd3df;
+		transition: background 0.15s;
+	}
+	.track::after {
+		content: '';
+		position: absolute;
+		top: 2px;
+		left: 2px;
+		width: 14px;
+		height: 14px;
+		border-radius: 50%;
+		background: white;
+		box-shadow: 0 1px 2px rgba(16, 24, 40, 0.2);
+		transition: transform 0.15s;
+	}
+	.toggle input:checked + .track {
+		background: #3d63dd;
+	}
+	.toggle input:checked + .track::after {
+		transform: translateX(14px);
+	}
+	.toggle input:focus-visible + .track {
+		outline: 2px solid #3d63dd;
+		outline-offset: 2px;
 	}
 	.tabs {
 		display: flex;

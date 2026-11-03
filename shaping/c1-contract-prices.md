@@ -200,8 +200,8 @@ The ones that change the plan most:
 the apps. Everything done in a session is gone at the next start.
 
 The work-order list helps to find examples. It searches by client name, and
-filters to "Only contracts with a price list" and "Only chargeable". On
-Ongoing, with both ticked, the Quote column shows where each work order stands:
+has two filters, "Has a price list" and "Chargeable". On Ongoing, with both
+on, the Quote column shows where each work order stands:
 no quote yet (20, where a CSM would start a draft), priced with the contract
 list, or an old quote (6 still in Draft, which can be imported).
 
