@@ -36,7 +36,10 @@ sees both on one work order.
    Link the repair items the line covers.
 3. **Add manual line** for anything else, with a reason: part not on the
    list, subcontracted work, negotiated price, other. It can point to the
-   contract rule it followed, such as 0097AS (supplier invoice x 1.41).
+   contract rule it followed, such as 0097AS (supplier invoice x 1.41). Then
+   its text starts with the rule as the contract prints it, so the customer
+   sees which rule priced the line, and the dialog shows the line as the
+   quote will.
 4. **Send to Salesforce**: the quote gets exactly these lines. While the quote
    is Draft, the CSM can change the draft and update the quote. Once it moves
    on, the draft closes. Sending waits until the supply team has identified

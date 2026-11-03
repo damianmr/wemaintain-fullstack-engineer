@@ -1,3 +1,4 @@
+import { RuleKind } from '../../price-lists/domain/price-list'
 import { QuoteStatus } from '../../quotes/domain/quote'
 import { DraftNotEditableError, InvalidDraftLineError, WorkOrderNotEligibleError } from './errors'
 import { DraftStatus, DraftWorkOrder, LineKind, ManualReason, QuoteDraft } from './quote-draft'
@@ -72,8 +73,15 @@ describe('QuoteDraft', () => {
 
   it('needs a reason for a manual line, and keeps the rule it followed', () => {
     const draft = newDraft()
-    const line = draft.addManualLine({ customerText: 'Car display, part not on the price list', quantity: 1, unitPrice: 437.1, reason: ManualReason.PART_NOT_ON_LIST, rule: { id: 'rule-0097', code: '0097AS' } })
-    expect(line).toMatchObject({ kind: LineKind.MANUAL, reason: ManualReason.PART_NOT_ON_LIST, ruleId: 'rule-0097', code: '0097AS' })
+    const rule = { id: 'rule-0097', code: '0097AS', kind: RuleKind.INVOICE_MULTIPLIER, value: 1.41, description: 'Coefficient on a part not on the price list' }
+    const line = draft.addManualLine({ customerText: 'Car display (invoice EUR 310)', quantity: 1, unitPrice: 437.1, reason: ManualReason.PART_NOT_ON_LIST, rule })
+    expect(line).toMatchObject({
+      kind: LineKind.MANUAL,
+      reason: ManualReason.PART_NOT_ON_LIST,
+      ruleId: 'rule-0097',
+      code: '0097AS',
+      customerText: '0097AS Coefficient on a part not on the price list, x 1.41: Car display (invoice EUR 310)',
+    })
     expect(() => draft.addManualLine({ customerText: 'x', quantity: 1, unitPrice: 1, reason: ManualReason.IMPORTED })).toThrow('adopted quote')
   })
 

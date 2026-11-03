@@ -301,6 +301,8 @@ type PriceListRule {
   value: Float!
   description: String!
   appliesTo: String!
+  "How a manual line that follows this rule starts on the customer's quote. The CSM adds the rest."
+  lineText: String!
   minQuantity: Int
   maxQuantity: Int
 }

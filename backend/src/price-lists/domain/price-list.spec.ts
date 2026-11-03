@@ -1,5 +1,5 @@
 import { InvalidPriceListError } from './errors'
-import { checkPriceList, customerText, PriceListContent } from './price-list'
+import { checkPriceList, customerText, PriceListContent, RuleKind, ruleText } from './price-list'
 
 const list = (entries: PriceListContent['entries'], bands: PriceListContent['bands'] = []): PriceListContent => ({
   client: 'TEST',
@@ -16,6 +16,18 @@ describe('a price list', () => {
     expect(customerText({ code: '0435AS', wording: 'Remote alarm replacement', unit: 'each' })).toBe('0435AS Remote alarm replacement, each')
     expect(customerText({ code: '65', wording: 'Standby technician', unit: 'Per Man-hr' }, { label: 'After office hours' })).toBe(
       '65 Standby technician, Per Man-hr, after office hours',
+    )
+  })
+
+  it('writes a rule as the contract prints it, to start the manual lines that follow it', () => {
+    expect(ruleText({ code: '0097AS', kind: RuleKind.INVOICE_MULTIPLIER, value: 1.41, description: 'Coefficient on a part not on the price list' })).toBe(
+      '0097AS Coefficient on a part not on the price list, x 1.41',
+    )
+    expect(ruleText({ code: '5600AS', kind: RuleKind.QUANTITY_DISCOUNT, value: 6, description: 'Unit discount for an order of 11 to 50 units' })).toBe(
+      '5600AS Unit discount for an order of 11 to 50 units, 6%',
+    )
+    expect(ruleText({ code: null, kind: RuleKind.STAR_RATES_ADJUSTMENT, value: 10, description: 'Star Rates: percentage adjustment to Star Rate items' })).toBe(
+      'Star Rates: percentage adjustment to Star Rate items, 10%',
     )
   })
 

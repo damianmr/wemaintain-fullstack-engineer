@@ -59,6 +59,12 @@ export function customerText(entry: { code: string; wording: string; unit?: stri
   return [`${entry.code} ${entry.wording}`, entry.unit, band?.label.toLowerCase()].filter(Boolean).join(', ')
 }
 
+/** How a manual line that follows a rule starts on the customer's quote: the rule as the contract prints it, with its value. */
+export function ruleText(rule: { code?: string | null; kind: RuleKind; value: number; description: string }): string {
+  const value = rule.kind === RuleKind.INVOICE_MULTIPLIER ? `x ${Number(rule.value)}` : `${Number(rule.value)}%`
+  return [rule.code, `${rule.description}, ${value}`].filter(Boolean).join(' ')
+}
+
 /** Refuses a list whose rates do not match its bands, so a band can never be missing from an entry. */
 export function checkPriceList(list: PriceListContent): void {
   const bandCodes = list.bands.map((band) => band.code)

@@ -26,6 +26,9 @@
 		return /subcontractor/i.test(`${rule.description} ${rule.appliesTo}`) ? 'SUBCONTRACTED_WORK' : 'PART_NOT_ON_LIST';
 	}
 
+	// What the customer will read: a line that follows a rule starts with the rule as the contract prints it.
+	const previewText = $derived(rule ? `${rule.lineText}: ${customerText.trim() || '…'}` : customerText.trim() || '…');
+
 	const valid = $derived(customerText.trim() !== '' && Number.isInteger(quantity) && quantity >= 1 && unitPrice !== null && reason !== '');
 
 	async function add() {
@@ -45,7 +48,15 @@
 		For work the contract list does not price. A contract line always keeps the list price, so any other price is a manual line, with the
 		reason recorded.
 	</p>
-	<label>Customer text<input bind:value={customerText} placeholder="What the customer reads on the quote" /></label>
+	{#if rule}
+		<label>
+			Customer text
+			<span class="fixed">{rule.lineText}:</span>
+			<input bind:value={customerText} placeholder="What this line is for, for example: Door motor (supplier invoice EUR 500)" />
+		</label>
+	{:else}
+		<label>Customer text<input bind:value={customerText} placeholder="What the customer reads on the quote" /></label>
+	{/if}
 	<div class="row">
 		<label>Quantity<input type="number" min="1" step="1" bind:value={quantity} /></label>
 		<label>Unit price ({draft.currency})<input type="number" step="0.01" bind:value={unitPrice} /></label>
@@ -59,7 +70,20 @@
 	</label>
 	{#if rule}<p class="grey">Follows the contract rule {rule.code ?? 'clause'}: {rule.description}.</p>{/if}
 	<label>Note<textarea rows="2" bind:value={note} placeholder="For example: supplier invoice EUR 500 × 1.41"></textarea></label>
-	{#if unitPrice !== null && Number.isInteger(quantity)}<p class="total">Total: <strong>{money(unitPrice * quantity, draft.currency)}</strong></p>{/if}
+	<div class="preview">
+		<span class="grey">On the customer's quote</span>
+		<table>
+			<thead><tr><th>Description</th><th>Qty</th><th>Unit price</th><th>Total</th></tr></thead>
+			<tbody>
+				<tr>
+					<td>{previewText}</td>
+					<td>{quantity}</td>
+					<td>{unitPrice === null ? '…' : money(unitPrice, draft.currency)}</td>
+					<td>{unitPrice === null || !Number.isInteger(quantity) ? '…' : money(unitPrice * quantity, draft.currency)}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
 	{#snippet actions()}
 		<button onclick={() => (open = false)}>Cancel</button>
 		<button class="primary" disabled={!valid} onclick={add}>Add line</button>
@@ -80,7 +104,31 @@
 	.row label {
 		flex: 1;
 	}
-	.total {
+	.fixed {
+		font-weight: 600;
+	}
+	.preview {
+		margin-top: 4px;
+		padding: 10px 12px;
+		border: 1px solid #d8dde4;
+		border-radius: 6px;
+		background: #f7f8fa;
+	}
+	.preview table {
+		width: 100%;
+		margin-top: 6px;
+		border-collapse: collapse;
+		font-size: 13px;
+	}
+	.preview th {
+		text-align: left;
+		font-weight: 600;
+		border-bottom: 1px solid #d8dde4;
+	}
+	.preview th:not(:first-child),
+	.preview td:not(:first-child) {
 		text-align: right;
+		white-space: nowrap;
+		padding-left: 12px;
 	}
 </style>

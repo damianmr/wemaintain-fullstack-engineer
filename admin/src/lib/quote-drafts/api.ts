@@ -37,7 +37,7 @@ export const searchPriceList = (priceListId: string, search: string) =>
 		`query SearchPriceList($priceListId: ID!, $search: String) {
 			priceListSearch(priceListId: $priceListId, search: $search) {
 				entries { id code section wording unit notes pickable rates { id amount band { id code label timeWindow } } }
-				rules { id code kind value description appliesTo }
+				rules { id code kind value description appliesTo lineText }
 			}
 		}`,
 		{ priceListId, search }

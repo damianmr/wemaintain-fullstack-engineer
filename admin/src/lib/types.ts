@@ -189,6 +189,8 @@ export interface PriceListRule {
 	value: number;
 	description: string;
 	appliesTo: string;
+	/** How a manual line that follows the rule starts on the customer's quote. */
+	lineText: string;
 }
 
 export interface PriceListSearch {

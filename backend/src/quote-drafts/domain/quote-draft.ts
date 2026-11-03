@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { QuoteStatus } from '../../quotes/domain/quote'
-import { customerText } from '../../price-lists/domain/price-list'
+import { customerText, RuleKind, ruleText } from '../../price-lists/domain/price-list'
 import { DraftNotEditableError, InvalidDraftLineError, WorkOrderNotEligibleError } from './errors'
 
 export enum DraftStatus {
@@ -197,7 +197,14 @@ export class QuoteDraft {
   }
 
   addManualLine(
-    input: { customerText: string; quantity: number; unitPrice: number; reason: ManualReason; note?: string; rule?: { id: string; code?: string | null } },
+    input: {
+      customerText: string
+      quantity: number
+      unitPrice: number
+      reason: ManualReason
+      note?: string
+      rule?: { id: string; code?: string | null; kind: RuleKind; value: number; description: string }
+    },
     imported = false,
   ): DraftLine {
     if (!input.customerText.trim()) throw new InvalidDraftLineError('A manual line needs the text the customer will read')
@@ -210,7 +217,8 @@ export class QuoteDraft {
       note: input.note?.trim() || undefined,
       ruleId: input.rule?.id,
       code: input.rule?.code ?? undefined,
-      customerText: input.customerText.trim(),
+      // A line that follows a rule starts with the rule as the contract prints it, so the customer sees which rule priced it.
+      customerText: input.rule ? `${ruleText(input.rule)}: ${input.customerText.trim()}` : input.customerText.trim(),
       unitPrice: input.unitPrice,
       quantity: input.quantity,
       coverage: [],
