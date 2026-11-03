@@ -125,11 +125,11 @@
 			{/each}
 			<h2>Work orders</h2>
 			{#each draft.workOrders as wo (wo.id)}
-				<div class="work-order">
+				<div class="work-order" class:current={wo.id === workOrder.id}>
 					<div>
 						<a href="/work-orders/details/{wo.workOrderNumber}">{wo.workOrderNumber}</a>
 						<span class="grey">{wo.deviceNo} · {wo.buildingName}</span>
-						{#if wo.id === workOrder.id}<span class="grey">(this one)</span>{/if}
+						{#if wo.id === workOrder.id}<span class="this-one">This work order</span>{/if}
 						<!-- Not the one on screen: removing it would take this page out of the draft, and the whole draft would seem gone. -->
 						{#if draft.editable && !draft.sfQuoteId && wo.id !== workOrder.id}
 							<button class="link" aria-label="Remove {wo.workOrderNumber} from the draft" disabled={removing} onclick={() => remove(draft.id, wo.id)}>✕</button>
@@ -246,8 +246,24 @@
 		padding: 2px 0;
 	}
 	.work-order {
-		padding: 8px 0;
+		padding: 8px 10px;
 		border-bottom: 1px solid #eceef3;
+		border-left: 3px solid transparent;
+	}
+	/* The work order on screen: tinted, with a coloured edge, so it stands out from the others in the draft. */
+	.work-order.current {
+		background: #f3f6fd;
+		border-left-color: #3d63dd;
+		border-radius: 4px;
+	}
+	.this-one {
+		margin-left: 6px;
+		padding: 1px 8px;
+		border-radius: 999px;
+		background: #3d63dd;
+		color: #fff;
+		font-size: 12px;
+		font-weight: 500;
 	}
 	.work-order ul {
 		margin: 6px 0 0;
