@@ -1,4 +1,5 @@
 import { gql } from '../graphql.ts';
+import { QUOTE_DRAFT } from '../quote-drafts/api.ts';
 import type { Part, WorkOrder, WorkOrderState } from '../types.ts';
 
 const DEVICE = `device {
@@ -7,12 +8,15 @@ const DEVICE = `device {
 	contracts { contract { contractNo type } }
 }`;
 
-export const listWorkOrders = (variables: { states: WorkOrderState[]; search?: string; limit: number; offset: number }, fetcher?: typeof fetch) =>
+export const listWorkOrders = (
+	variables: { states: WorkOrderState[]; search?: string; withPriceList?: boolean; chargeable?: boolean; limit: number; offset: number },
+	fetcher?: typeof fetch
+) =>
 	gql<{ workOrders: { totalCount: number; items: WorkOrder[] } }>(
-		`query WorkOrders($states: [WorkOrderState!], $search: String, $limit: Int, $offset: Int) {
-			workOrders(states: $states, search: $search, limit: $limit, offset: $offset) {
+		`query WorkOrders($states: [WorkOrderState!], $search: String, $withPriceList: Boolean, $chargeable: Boolean, $limit: Int, $offset: Int) {
+			workOrders(states: $states, search: $search, withPriceList: $withPriceList, chargeable: $chargeable, limit: $limit, offset: $offset) {
 				totalCount
-				items { id workOrderNumber title state urgencyLevel createdAt ${DEVICE} }
+				items { id workOrderNumber title state urgencyLevel createdAt quoteNumber quoteStatus quoteDraftId ${DEVICE} }
 			}
 		}`,
 		variables,
@@ -27,9 +31,10 @@ export const getWorkOrder = (id: string, fetcher?: typeof fetch) =>
 				sfQuoteId sfQuoteLink quoteNumber quoteStatus
 				# Read live from Salesforce by the backend.
 				quote { id reference number status grandTotal currencyISOCode emittedDate description accountName documentAvailable }
-				bundledWorkOrders { id workOrderNumber device { deviceNo } }
+				bundledWorkOrders { id workOrderNumber state device { deviceNo } items { type partId } }
 				${DEVICE}
 				items { id type partId part { id sku name brand averageCost } quantity description comment price sellPrice }
+				${QUOTE_DRAFT}
 			}
 		}`,
 		{ id },

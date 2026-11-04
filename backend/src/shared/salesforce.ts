@@ -3,6 +3,10 @@ export interface QuoteProduct {
   quantity: number
   cost?: number | null
   price?: number
+  /** What the customer reads instead of the product's name. */
+  productName?: string
+  /** Our id for the line, stored on the Salesforce line (WeMaintain_Line_ID__c) to match it back. */
+  lineId?: string
 }
 
 export interface SendQuotePayload {

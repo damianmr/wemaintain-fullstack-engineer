@@ -16,6 +16,8 @@ src/
   quotes/           quotes: the Salesforce record plus our quote event stream
   contracts/        customers, buildings, devices, contracts (read by quoting; written by the Salesforce sync)
   parts/            the parts catalogue, synced from the ERP
+  price-lists/      the contract price lists (Schedules of Rates), one version per import
+  quote-drafts/     quotes prepared from a contract price list before they go to Salesforce
   salesforce-sync/  what we do when Salesforce tells us something changed
   schema.graphql    the whole API
   shared/
@@ -37,7 +39,7 @@ Every module reads the same way:
 
 ## Running it
 
-From the repository root, `pnpm seed && pnpm dev` (see the root README). The
+From the repository root, `pnpm dev`, which seeds first (see the root README). The
 backend alone: `pnpm --filter backend dev`.
 
 Every variable the three apps read:

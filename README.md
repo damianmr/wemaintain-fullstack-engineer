@@ -50,6 +50,7 @@ colleagues.
 | `backend/`     | A slice of our backend: work orders, quotes, contracts, parts. NestJS, Postgres, GraphQL. `data/` holds anonymised production data, one gzipped CSV per table (`.csv.gz`), loaded by `pnpm seed`. | http://localhost:4000/graphql |
 | `admin/`       | A toy version of our admin: the work order list and the work order page. SvelteKit.                                                                                                               | http://localhost:5173         |
 | `salesforce/`  | A toy Salesforce: the API our backend calls, and a quote page to play the sales side. SvelteKit.                                                                                                  | http://localhost:4001         |
+| `shaping/`     | The shaping of C1: the project description (`index.html`, built from `index.md`) and the queries behind it. | |
 
 The three apps run together (see "Running it").
 `backend/README.md` is the technical entry point: how the code is laid out,
@@ -71,21 +72,21 @@ With [devenv](https://devenv.sh), which brings Node 22, pnpm and Postgres 16:
 devenv up      # terminal 1: Postgres
 devenv shell   # terminal 2, then:
 pnpm install
-pnpm seed      # creates the tables, loads the data, resets the toy Salesforce
-pnpm dev       # backend, admin and toy Salesforce together
+pnpm dev       # loads the supplied data, then starts the backend, admin and toy Salesforce
 ```
 
 Without devenv: Node 22, pnpm (`corepack enable`) and a Postgres 16 with a
 `wemaintain` database owned by `wemaintain`/`wemaintain` on localhost:5432
 (`docker compose up -d` gives you one). Set `DATABASE_URL` if yours is elsewhere.
 
-`pnpm seed` is safe to re-run: it puts the data and the toy Salesforce back as
-they were.
+Every `pnpm dev` starts from the supplied data: it runs `pnpm seed` first, so
+quote drafts, sent quotes and other changes from the last session are gone.
+`pnpm seed` alone puts the data and the toy Salesforce back as they were.
 
 To query the data, `psql "$DATABASE_URL"`, or
 `psql postgres://wemaintain:wemaintain@127.0.0.1:5432/wemaintain` if you did not set it.
 Tables are grouped by schema: `workorders`, `contracts`, `users`, `buildings`,
-`devices` and `salesforce`.
+`devices`, `pricing` (the contract price lists) and `salesforce`.
 
 ## A tour
 

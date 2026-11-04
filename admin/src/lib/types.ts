@@ -68,7 +68,159 @@ export interface WorkOrder {
 	quoteNumber: string | null;
 	quoteStatus: QuoteStatus | null;
 	quote: Quote | null;
-	bundledWorkOrders: { id: string; workOrderNumber: string; device: { deviceNo: string } | null }[];
+	bundledWorkOrders: { id: string; workOrderNumber: string; state: WorkOrderState; device: { deviceNo: string } | null; items: Pick<Item, 'type' | 'partId'>[] }[];
 	device: Device | null;
 	items: Item[];
+	/** Null: the contract has no price list, and the Salesforce quote buttons apply. */
+	contractPricing: ContractPricing | null;
+	quoteDraft: QuoteDraft | null;
+	/** In the list only: the quote draft the work order is in. */
+	quoteDraftId?: string | null;
+}
+
+/** The price list that applies to a work order's contract, if C1 has linked one. */
+export interface ContractPricing {
+	contractId: string;
+	contractNo: string;
+	priceList: { id: string; name: string; currency: string };
+}
+
+export type DraftLineKind = 'CONTRACT' | 'MANUAL';
+
+export type ManualReason = 'PART_NOT_ON_LIST' | 'SUBCONTRACTED_WORK' | 'NEGOTIATED_PRICE' | 'IMPORTED' | 'OTHER';
+
+export interface CoveredItem {
+	itemId: string;
+	workOrderNumber: string;
+	quantity: number;
+}
+
+export interface QuoteDraftLine {
+	id: string;
+	kind: DraftLineKind;
+	/** The contract code: 0435AS, or 65 for a Meridian SOR item. */
+	code: string | null;
+	/** What the customer reads on the quote. */
+	customerText: string;
+	bandLabel: string | null;
+	unit: string | null;
+	quantity: number;
+	unitPrice: number;
+	total: number;
+	reason: ManualReason | null;
+	note: string | null;
+	ruleCode: string | null;
+	coverage: CoveredItem[];
+}
+
+export interface QuoteDraftWorkOrder {
+	id: string;
+	workOrderNumber: string;
+	state: WorkOrderState;
+	deviceNo: string;
+	buildingName: string;
+	items: Item[];
+}
+
+export interface QuoteDraft {
+	id: string;
+	contractNo: string;
+	priceListId: string;
+	priceListName: string;
+	currency: string;
+	status: 'OPEN' | 'SENT';
+	editable: boolean;
+	/** Why the draft cannot be sent yet. Empty when it can. */
+	sendBlockers: string[];
+	/** After a send: the Salesforce quote is behind the draft. */
+	unsentChanges: boolean;
+	sfQuoteId: string | null;
+	sfQuoteLink: string | null;
+	quoteNumber: string | null;
+	workOrders: QuoteDraftWorkOrder[];
+	lines: QuoteDraftLine[];
+	total: number;
+	/** Each time the quote was presented to the customer, newest first. */
+	observations: QuoteDraftObservation[];
+}
+
+/** Which contract lines reached the customer at the list price, read from Salesforce at presentation. */
+export interface QuoteDraftObservation {
+	observedAt: string;
+	contractLines: number;
+	atListPrice: number;
+	changedInSalesforce: number;
+	removedInSalesforce: number;
+	manualLines: number;
+	addedInSalesforce: number;
+}
+
+export interface PriceListBand {
+	id: string;
+	code: string;
+	label: string;
+	timeWindow: string;
+}
+
+export interface PriceListRate {
+	id: string;
+	amount: number;
+	/** Empty when the list has no time bands, like Lindenhome's. */
+	band: PriceListBand | null;
+}
+
+export interface PriceListEntry {
+	id: string;
+	code: string;
+	section: string;
+	wording: string;
+	unit: string | null;
+	notes: string | null;
+	/** False when the list leaves something to confirm, such as a missing unit. */
+	pickable: boolean;
+	rates: PriceListRate[];
+}
+
+/** A rule printed in the list, not a price: a multiplier, a volume discount, an adjustment. */
+export interface PriceListRule {
+	id: string;
+	code: string | null;
+	kind: 'MULTIPLIER' | 'PERCENTAGE';
+	value: number;
+	description: string;
+	appliesTo: string;
+	/** How a manual line that follows the rule starts on the customer's quote. */
+	lineText: string;
+}
+
+export interface PriceListSearch {
+	entries: PriceListEntry[];
+	rules: PriceListRule[];
+}
+
+export interface NewContractLine {
+	rateId: string;
+	quantity: number;
+	coverage: { itemId: string; quantity: number }[];
+}
+
+export interface NewManualLine {
+	customerText: string;
+	quantity: number;
+	unitPrice: number;
+	reason: ManualReason;
+	note: string;
+	/** The contract rule the CSM followed, such as 0097AS. */
+	ruleId: string | null;
+}
+
+/** A work order the CSM can bring into a draft: same contract, chargeable, no quote, no draft. */
+export interface DraftCandidate {
+	id: string;
+	workOrderNumber: string;
+	/** The title, or the description when there is no title. */
+	title: string;
+	state: WorkOrderState;
+	deviceNo: string;
+	buildingName: string;
 }

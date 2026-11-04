@@ -5,18 +5,22 @@ import { createGunzip } from 'node:zlib'
 import type { PoolClient } from 'pg'
 import { from as copyFrom } from 'pg-copy-streams'
 import { connect } from '../src/shared/boilerplate/data-source'
+import { seedContractPriceLists } from './contract-price-lists'
+import { seedPriceLists } from './price-lists'
 
 const DATA = join(__dirname, '..', 'data')
 const SALESFORCE_SCHEMA = join(__dirname, '..', '..', 'salesforce', 'schema.sql')
 
-/** Creates the tables, loads data/*.csv.gz (one file per table), then resets the toy Salesforce. */
+/** Creates the tables, empties them, loads data/*.csv.gz (one file per table) and the contract price lists, then resets the toy Salesforce. */
 async function seed() {
   const db = await connect()
   await db.query(readFileSync(SALESFORCE_SCHEMA, 'utf8'))
 
   const files = readdirSync(DATA).filter((file) => file.endsWith('.csv.gz')).sort()
   const tables = files.map((file) => file.replace(/\.csv\.gz$/, ''))
-  await db.query(`TRUNCATE ${tables.filter((t) => !t.startsWith('salesforce.')).map(qualified).join(', ')} CASCADE`)
+  // Every table the backend owns starts empty, including tables no CSV file fills.
+  const owned = db.entityMetadatas.map((entity) => `"${entity.schema}"."${entity.tableName}"`)
+  await db.query(`TRUNCATE ${owned.join(', ')} CASCADE`)
 
   const client = (await (db.driver as unknown as { master: { connect(): Promise<PoolClient> } }).master.connect()) as PoolClient
   try {
@@ -34,6 +38,8 @@ async function seed() {
   } finally {
     client.release()
   }
+  await seedPriceLists(db)
+  await seedContractPriceLists(db)
   await db.destroy()
   await resetSalesforce()
 }

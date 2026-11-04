@@ -129,7 +129,7 @@ export async function reset() {
 
 // ---- REST API: SOQL and record updates ------------------------------------------
 
-/** Understands only the WHERE shapes our backend sends: Id = / Id IN, Status IN, Quote__c =. */
+/** Understands only the WHERE shapes our backend sends: Id = / Id IN, Status IN, Quote__c =, QuoteId =. */
 export function soql(q: string): { totalSize: number; done: true; records: SObject[] } {
 	const db = org() as unknown as Record<string, SObject[]>;
 	const where = q.replace(/\(SELECT[^)]*\)/gi, '');
@@ -138,8 +138,13 @@ export function soql(q: string): { totalSize: number; done: true; records: SObje
 	const ids = list(/\bId IN \(([^)]*)\)/i) ?? list(/\bId = ('[^']*')/i);
 	const statuses = list(/\bStatus IN \(([^)]*)\)/i);
 	const quoteId = /Quote__c = '([^']*)'/i.exec(where)?.[1];
+	const lineQuoteId = /\bQuoteId = '([^']*)'/i.exec(where)?.[1];
 	const records = (db[from] ?? []).filter(
-		(r) => (!ids || ids.includes(r.Id)) && (!statuses || statuses.includes(r.Status)) && (!quoteId || r.Quote__c === quoteId)
+		(r) =>
+			(!ids || ids.includes(r.Id)) &&
+			(!statuses || statuses.includes(r.Status)) &&
+			(!quoteId || r.Quote__c === quoteId) &&
+			(!lineQuoteId || r.QuoteId === lineQuoteId)
 	);
 	const withQuote = records.map((r) => (r.Quote__c ? { ...r, Quote__r: db.Quote.find((x) => x.Id === r.Quote__c) } : r));
 	return { totalSize: records.length, done: true, records: /COUNT\(\)/i.test(q) ? [] : withQuote };
@@ -160,6 +165,8 @@ export interface Product {
 	price?: number;
 	productName?: string;
 	productDescription?: string;
+	/** Our id for the line, kept on the quote line so we can match it back later. */
+	lineId?: string;
 }
 
 export interface CreateQuoteRequest {
@@ -249,7 +256,8 @@ function setPricedLines(db: Org, quote: SObject, country: string, lines: ReturnT
 			Cost__c: product.cost ?? null,
 			Discount: null,
 			QuotePdf_ProductName__c: product.productName ?? null,
-			Quote_Line_Description__c: product.productDescription ?? null
+			Quote_Line_Description__c: product.productDescription ?? null,
+			WeMaintain_Line_ID__c: product.lineId ?? null
 		})
 	);
 	updateTotal(db, quote);
