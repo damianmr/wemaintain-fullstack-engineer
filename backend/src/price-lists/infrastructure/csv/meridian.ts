@@ -26,7 +26,7 @@ export function readMeridianList(text: string, sourceFile: string): PriceListCon
     // Printed above the table, not as a row: typed in from the contract text.
     rules: [
       {
-        kind: RuleKind.STAR_RATES_ADJUSTMENT,
+        kind: RuleKind.PERCENTAGE,
         value: 10,
         description: 'Star Rates: percentage adjustment to Star Rate items',
         appliesTo: 'agreed rates for work Table A does not list',

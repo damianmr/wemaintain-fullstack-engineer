@@ -185,7 +185,7 @@ export interface PriceListEntry {
 export interface PriceListRule {
 	id: string;
 	code: string | null;
-	kind: 'INVOICE_MULTIPLIER' | 'QUANTITY_DISCOUNT' | 'STAR_RATES_ADJUSTMENT';
+	kind: 'MULTIPLIER' | 'PERCENTAGE';
 	value: number;
 	description: string;
 	appliesTo: string;

@@ -36,9 +36,9 @@ describe('the Lindenhome list', () => {
   })
 
   it('keeps multipliers and discounts as rules, never as prices', () => {
-    expect(list.rules.find((r) => r.code === '0097AS')).toMatchObject({ kind: RuleKind.INVOICE_MULTIPLIER, value: 1.41 })
+    expect(list.rules.find((r) => r.code === '0097AS')).toMatchObject({ kind: RuleKind.MULTIPLIER, value: 1.41 })
     const discount = list.rules.find((r) => r.code === '5600AS')!
-    expect(discount).toMatchObject({ kind: RuleKind.QUANTITY_DISCOUNT, value: 6, minQuantity: 11, maxQuantity: 50 })
+    expect(discount).toMatchObject({ kind: RuleKind.PERCENTAGE, value: 6, minQuantity: 11, maxQuantity: 50 })
     expect(discount.description).toContain('11 to 50 units')
     expect(list.rules.find((r) => r.code === '5610AS')!.description).toContain('more than 50 units')
   })
@@ -64,6 +64,6 @@ describe('the Meridian list', () => {
   })
 
   it('records the Star Rates clause as a rule typed in from the contract text', () => {
-    expect(list.rules).toEqual([expect.objectContaining({ kind: RuleKind.STAR_RATES_ADJUSTMENT, value: 10, source: 'Table A, clause 1' })])
+    expect(list.rules).toEqual([expect.objectContaining({ kind: RuleKind.PERCENTAGE, value: 10, source: 'Table A, clause 1' })])
   })
 })

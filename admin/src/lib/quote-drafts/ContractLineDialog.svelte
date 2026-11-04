@@ -83,7 +83,7 @@
 				{#each rules as rule (rule.id)}
 					<li>
 						<Pill>{rule.code ?? 'Clause'}</Pill> {rule.description}
-						<span class="grey">({rule.kind === 'INVOICE_MULTIPLIER' ? `× ${rule.value}` : `${rule.value}%`} on {rule.appliesTo})</span>
+						<span class="grey">({rule.kind === 'MULTIPLIER' ? `× ${rule.value}` : `${rule.value}%`} on {rule.appliesTo})</span>
 						<button class="link" onclick={() => useRule(rule)}>Use in a manual line</button>
 					</li>
 				{/each}

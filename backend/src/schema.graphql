@@ -247,7 +247,7 @@ type Contract {
   endDate: DateTime!
 }
 
-enum RuleKind { INVOICE_MULTIPLIER QUANTITY_DISCOUNT STAR_RATES_ADJUSTMENT }
+enum RuleKind { MULTIPLIER PERCENTAGE }
 
 type ContractPricing {
   contractId: ID!

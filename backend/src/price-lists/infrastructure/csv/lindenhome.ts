@@ -11,10 +11,10 @@ export function readLindenhomeList(text: string, sourceFile: string): PriceListC
   for (const row of readCsv(text)) {
     const source = `${sourceFile}, row ${row.code}`
     if (row.section === 'COEFFICIENT') {
-      rules.push({ code: row.code, kind: RuleKind.INVOICE_MULTIPLIER, value: amount(row), description: row.designation, appliesTo: row.comment, source })
+      rules.push({ code: row.code, kind: RuleKind.MULTIPLIER, value: amount(row), description: row.designation, appliesTo: row.comment, source })
     } else if (row.section === 'DEDUCTIONS') {
       const [minQuantity, maxQuantity] = DISCOUNT_RANGES[row.code]
-      rules.push({ code: row.code, kind: RuleKind.QUANTITY_DISCOUNT, value: amount(row), description: row.designation, appliesTo: row.comment, minQuantity, maxQuantity, source })
+      rules.push({ code: row.code, kind: RuleKind.PERCENTAGE, value: amount(row), description: row.designation, appliesTo: row.comment, minQuantity, maxQuantity, source })
     } else {
       entries.push({
         code: row.code,

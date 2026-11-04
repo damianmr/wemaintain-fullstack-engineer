@@ -2,14 +2,16 @@
 // Each import is a version that never changes: a new price means a new version.
 import { InvalidPriceListError } from './errors'
 
-/** A rule printed in the list. It is not a price: C1 shows it, C4 will calculate with it. */
+/**
+ * A rule printed in the list. It is not a price: C1 shows it, C4 will calculate with it.
+ * The kind says only how to read the value, so any client's rules fit. What a rule means is in its
+ * description, and whether a percentage adds or takes off money is for C4 to decide.
+ */
 export enum RuleKind {
-  // Lindenhome 0097AS: the supplier's invoice x 1.41 for a part not on the list.
-  INVOICE_MULTIPLIER = 'INVOICE_MULTIPLIER',
-  // Lindenhome 5600AS: 6% off per unit for 11 to 50 units of the same part.
-  QUANTITY_DISCOUNT = 'QUANTITY_DISCOUNT',
-  // Meridian clause 1: 10% adjustment on agreed rates for work Table A does not list.
-  STAR_RATES_ADJUSTMENT = 'STAR_RATES_ADJUSTMENT',
+  // The value is a factor. Lindenhome 0097AS: the supplier's invoice x 1.41 for a part not on the list.
+  MULTIPLIER = 'MULTIPLIER',
+  // The value is a percent. Lindenhome 5600AS: 6% per unit for 11 to 50 units; Meridian Star Rates: 10%.
+  PERCENTAGE = 'PERCENTAGE',
 }
 
 export interface Band {
@@ -35,6 +37,7 @@ export interface Rule {
   value: number
   description: string
   appliesTo: string
+  /** Optional. C1 only stores the range; C4 will use it to apply the rule only within it, such as 11 to 50 units. */
   minQuantity?: number
   maxQuantity?: number
   /** Where the rule comes from: the CSV row, or the contract clause for rules typed in by hand. */
@@ -61,7 +64,7 @@ export function customerText(entry: { code: string; wording: string; unit?: stri
 
 /** How a manual line that follows a rule starts on the customer's quote: the rule as the contract prints it, with its value. */
 export function ruleText(rule: { code?: string | null; kind: RuleKind; value: number; description: string }): string {
-  const value = rule.kind === RuleKind.INVOICE_MULTIPLIER ? `x ${Number(rule.value)}` : `${Number(rule.value)}%`
+  const value = rule.kind === RuleKind.MULTIPLIER ? `x ${Number(rule.value)}` : `${Number(rule.value)}%`
   return [rule.code, `${rule.description}, ${value}`].filter(Boolean).join(' ')
 }
 

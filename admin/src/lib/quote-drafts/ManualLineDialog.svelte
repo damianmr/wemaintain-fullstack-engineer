@@ -22,7 +22,7 @@
 
 	// 0097AS multiplies a supplier's invoice; 5510AS and 5050AS a subcontractor's.
 	function reasonFor(rule: PriceListRule): ManualReason {
-		if (rule.kind !== 'INVOICE_MULTIPLIER') return 'OTHER';
+		if (rule.kind !== 'MULTIPLIER') return 'OTHER';
 		return /subcontractor/i.test(`${rule.description} ${rule.appliesTo}`) ? 'SUBCONTRACTED_WORK' : 'PART_NOT_ON_LIST';
 	}
 

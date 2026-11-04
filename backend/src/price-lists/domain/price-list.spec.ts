@@ -20,13 +20,13 @@ describe('a price list', () => {
   })
 
   it('writes a rule as the contract prints it, to start the manual lines that follow it', () => {
-    expect(ruleText({ code: '0097AS', kind: RuleKind.INVOICE_MULTIPLIER, value: 1.41, description: 'Coefficient on a part not on the price list' })).toBe(
+    expect(ruleText({ code: '0097AS', kind: RuleKind.MULTIPLIER, value: 1.41, description: 'Coefficient on a part not on the price list' })).toBe(
       '0097AS Coefficient on a part not on the price list, x 1.41',
     )
-    expect(ruleText({ code: '5600AS', kind: RuleKind.QUANTITY_DISCOUNT, value: 6, description: 'Unit discount for an order of 11 to 50 units' })).toBe(
+    expect(ruleText({ code: '5600AS', kind: RuleKind.PERCENTAGE, value: 6, description: 'Unit discount for an order of 11 to 50 units' })).toBe(
       '5600AS Unit discount for an order of 11 to 50 units, 6%',
     )
-    expect(ruleText({ code: null, kind: RuleKind.STAR_RATES_ADJUSTMENT, value: 10, description: 'Star Rates: percentage adjustment to Star Rate items' })).toBe(
+    expect(ruleText({ code: null, kind: RuleKind.PERCENTAGE, value: 10, description: 'Star Rates: percentage adjustment to Star Rate items' })).toBe(
       'Star Rates: percentage adjustment to Star Rate items, 10%',
     )
   })

@@ -73,7 +73,7 @@ describe('QuoteDraft', () => {
 
   it('needs a reason for a manual line, and keeps the rule it followed', () => {
     const draft = newDraft()
-    const rule = { id: 'rule-0097', code: '0097AS', kind: RuleKind.INVOICE_MULTIPLIER, value: 1.41, description: 'Coefficient on a part not on the price list' }
+    const rule = { id: 'rule-0097', code: '0097AS', kind: RuleKind.MULTIPLIER, value: 1.41, description: 'Coefficient on a part not on the price list' }
     const line = draft.addManualLine({ customerText: 'Car display (invoice EUR 310)', quantity: 1, unitPrice: 437.1, reason: ManualReason.PART_NOT_ON_LIST, rule })
     expect(line).toMatchObject({
       kind: LineKind.MANUAL,
