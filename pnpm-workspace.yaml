@@ -2,9 +2,12 @@ packages:
   - backend
   - admin
   - salesforce
+  - shaping
 
 # None of these packages needs its install script here.
 allowBuilds:
   '@parcel/watcher': false
   unrs-resolver: false
   esbuild: true
+  # The shaping page renders diagrams with a Chrome that puppeteer finds in its cache.
+  puppeteer: false

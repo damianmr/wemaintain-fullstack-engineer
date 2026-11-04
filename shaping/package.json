@@ -1,0 +1,11 @@
+{
+  "name": "shaping",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build-index.mjs"
+  },
+  "devDependencies": {
+    "@mermaid-js/mermaid-cli": "12.0.0"
+  }
+}

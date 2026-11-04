@@ -2,7 +2,7 @@
 -- Findings: the Lindenhome list matches Lindenhome AL's main contract 00019814
 -- (157 devices), not only the small 00016840. Meridian's Table A matches most
 -- sibling malls, but North Gem and Ardmoor charge item 38 at other prices, so
--- they are not linked until WeMaintain confirms (interviewer question 5).
+-- they are not linked until WeMaintain confirms.
 \ir 00-load-price-lists.sql
 
 -- The contract behind each quote line, through the quote's work orders.
